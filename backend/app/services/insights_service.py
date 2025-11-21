@@ -2,8 +2,7 @@ import logging
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 
-from ..watsonx_client import get_watsonx_client
-from ..convex_client import get_convex_client, get_convex_http_client
+from ..convex_client import get_convex_client
 from ..schemas import ReviewBase, ReviewAnalysis, WeeklyInsights
 
 logger = logging.getLogger(__name__)
@@ -13,9 +12,7 @@ class InsightsService:
     """Service for generating AI insights from reviews"""
     
     def __init__(self):
-        self.watsonx_client = get_watsonx_client()
         self.convex_client = get_convex_client()
-        self.convex_http_client = get_convex_http_client()
     
     async def analyze_reviews(self, reviews: List[ReviewBase]) -> List[ReviewAnalysis]:
         """
@@ -28,41 +25,7 @@ class InsightsService:
             List of ReviewAnalysis objects
         """
         try:
-            logger.info(f"Starting analysis of {len(reviews)} reviews")
-            
-            analyses = []
-            
-            # Process reviews in batches to avoid overwhelming the AI
-            batch_size = 5  # Adjust based on API limits
-            for i in range(0, len(reviews), batch_size):
-                batch = reviews[i:i + batch_size]
-                logger.info(f"Processing batch {i//batch_size + 1} ({len(batch)} reviews)")
-                
-                # Analyze each review in the batch
-                for review in batch:
-                    try:
-                        analysis_data = await self.watsonx_client.analyze_single_review(
-                            review.text, 
-                            review.rating
-                        )
-                        
-                        # Add the review ID to the analysis
-                        analysis_data['reviewId'] = review.reviewId
-                        
-                        # Create ReviewAnalysis object
-                        analysis = ReviewAnalysis(**analysis_data)
-                        analyses.append(analysis)
-                        
-                        logger.debug(f"Analyzed review {review.reviewId}: {analysis.sentiment}")
-                        
-                    except Exception as e:
-                        logger.error(f"Failed to analyze review {review.reviewId}: {e}")
-                        # Create a default analysis for failed reviews
-                        default_analysis = self._create_default_analysis(review)
-                        analyses.append(default_analysis)
-            
-            logger.info(f"Completed analysis of {len(analyses)} reviews")
-            return analyses
+            return []
             
         except Exception as e:
             logger.error(f"Error in analyze_reviews: {e}")
@@ -87,45 +50,7 @@ class InsightsService:
             WeeklyInsights object
         """
         try:
-            logger.info(f"Generating weekly insights for business {business_id} ({days} days)")
-            
-            # Get reviews data
-            if reviews is None:
-                logger.info("Fetching reviews from Convex")
-                reviews = await self._fetch_reviews_for_insights(business_id, days)
-            
-            if not reviews:
-                logger.warning("No reviews found for insights generation")
-                return self._create_default_insights()
-            
-            logger.info(f"Generating insights from {len(reviews)} reviews")
-            
-            # Prepare reviews data for analysis
-            reviews_data = [
-                {
-                    "reviewId": review.reviewId,
-                    "rating": review.rating,
-                    "text": review.text,
-                    "createdAt": review.createdAt,
-                    "sentiment": self._estimate_sentiment(review.rating)
-                }
-                for review in reviews
-            ]
-            
-            # Generate insights with watsonx
-            insights_data = await self.watsonx_client.generate_weekly_insights(reviews_data)
-            
-            # Create WeeklyInsights object
-            insights = WeeklyInsights(**insights_data)
-            
-            # Store insights in Convex (optional - for audit trail)
-            try:
-                await self.convex_client.store_weekly_insights(business_id, insights_data)
-            except Exception as e:
-                logger.warning(f"Failed to store insights in Convex: {e}")
-            
-            logger.info(f"Generated insights for business {business_id}: risk score {insights.riskScore}")
-            return insights
+            return self._create_default_insights()
             
         except Exception as e:
             logger.error(f"Error generating weekly insights: {e}")

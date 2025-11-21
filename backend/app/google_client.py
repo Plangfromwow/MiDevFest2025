@@ -27,7 +27,7 @@ class GoogleBusinessClient:
         
         # Create credentials from refresh token
         self._credentials = Credentials(
-            token=None,  # Will be refreshed
+            token=None,  
             refresh_token=self.settings.google_refresh_token,
             client_id=self.settings.google_client_id,
             client_secret=self.settings.google_client_secret,
@@ -64,13 +64,10 @@ class GoogleBusinessClient:
             
             logger.info(f"Fetching reviews for location: {location_id}")
             
-            # Build the request
             request_params = {}
             if since_iso:
-                # Convert to the format Google expects
                 request_params['filter'] = f'createTime >= "{since_iso}"'
             
-            # Call the API
             request = service.accounts().locations().reviews().list(
                 parent=location_id,
                 pageSize=50,  # Max per request
@@ -80,7 +77,6 @@ class GoogleBusinessClient:
             response = request.execute()
             reviews = response.get('reviews', [])
             
-            # Normalize the reviews
             normalized_reviews = []
             for review in reviews:
                 normalized_review = self._normalize_google_review(review)
@@ -111,17 +107,14 @@ class GoogleBusinessClient:
             service = self._get_service()
             location_id = self.settings.google_location_id
             
-            # The review name format for Google API
             review_name = f"{location_id}/reviews/{review_id}"
             
             logger.info(f"Posting reply to review: {review_name}")
             
-            # Prepare the reply body
             reply_body = {
                 'comment': reply_text
             }
             
-            # Post the reply
             request = service.accounts().locations().reviews().reply(
                 name=review_name,
                 body=reply_body
@@ -165,14 +158,11 @@ class GoogleBusinessClient:
         }
         rating = rating_map.get(star_rating, 3)
         
-        # Extract review text
         review_text = google_review.get('comment', '')
         
-        # Extract reviewer info
         reviewer = google_review.get('reviewer', {})
         reviewer_name = reviewer.get('displayName', 'Anonymous')
         
-        # Extract creation time
         create_time = google_review.get('createTime', '')
         if create_time:
             # Google returns RFC3339 format, convert to ISO

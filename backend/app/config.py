@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     # watsonx.ai Configuration
     watsonx_api_key: str
     watsonx_project_id: str
-    watsonx_url: str = "https://us-south.ml.cloud.ibm.com"
-    watsonx_model_id: str = "ibm/granite-13b-chat-v2"
+    watsonx_url: str
+    watsonx_model_id: str
     watsonx_deployment_id: Optional[str] = None
     
     # API Configuration
@@ -46,7 +46,6 @@ def get_settings() -> Settings:
 
 
 def reload_settings() -> Settings:
-    """Reload settings (useful for testing)"""
     global _settings
     _settings = Settings()
     return _settings

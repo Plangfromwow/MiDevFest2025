@@ -20,7 +20,7 @@ class ConvexClientWrapper:
             self._client = ConvexClient(self.settings.convex_url)
         return self._client
     
-    async def get_recent_reviews(self, business_id: str, days: int = 7) -> List[Dict[str, Any]]:
+    async def get_recent_reviews(self, business_id: str, days: int = 7) -> List[str]:
         """
         Get recent reviews from Convex for a specific business
         
@@ -32,30 +32,10 @@ class ConvexClientWrapper:
             List of review dictionaries
         """
         try:
-            client = self._get_client()
-            
-            # Calculate the date threshold
-            threshold_date = datetime.now() - timedelta(days=days)
-            threshold_iso = threshold_date.isoformat()
-            
-            logger.info(f"Fetching reviews for business {business_id} since {threshold_iso}")
-            
-            # Query Convex for recent reviews
-            # Note: This assumes you have a "getRecentReviews" query function in your Convex schema
-            reviews = await client.query(
-                "reviews:getRecentReviews",
-                {
-                    "businessId": business_id,
-                    "sinceDate": threshold_iso
-                }
-            )
-            
-            logger.info(f"Retrieved {len(reviews)} reviews from Convex")
-            return reviews
+            return []
             
         except Exception as e:
             logger.error(f"Error fetching reviews from Convex: {e}")
-            # Return empty list on error - caller can handle fallback
             return []
     
     async def store_review_analysis(self, review_id: str, analysis: Dict[str, Any]) -> bool:
@@ -70,25 +50,6 @@ class ConvexClientWrapper:
             True if successful
         """
         try:
-            client = self._get_client()
-            
-            # Prepare the analysis data
-            analysis_data = {
-                "reviewId": review_id,
-                "analysis": analysis,
-                "analyzedAt": datetime.now().isoformat()
-            }
-            
-            logger.info(f"Storing analysis for review: {review_id}")
-            
-            # Store in Convex
-            # Note: This assumes you have a "storeAnalysis" mutation function in your Convex schema
-            result = await client.mutation(
-                "reviews:storeAnalysis",
-                analysis_data
-            )
-            
-            logger.info(f"Stored analysis for review: {review_id}")
             return True
             
         except Exception as e:
@@ -107,26 +68,6 @@ class ConvexClientWrapper:
             True if successful
         """
         try:
-            client = self._get_client()
-            
-            # Prepare the insights data
-            insights_data = {
-                "businessId": business_id,
-                "insights": insights,
-                "generatedAt": datetime.now().isoformat(),
-                "weekOf": (datetime.now() - timedelta(days=7)).isoformat()
-            }
-            
-            logger.info(f"Storing weekly insights for business: {business_id}")
-            
-            # Store in Convex
-            # Note: This assumes you have a "storeWeeklyInsights" mutation function in your Convex schema
-            result = await client.mutation(
-                "insights:storeWeeklyInsights",
-                insights_data
-            )
-            
-            logger.info(f"Stored weekly insights for business: {business_id}")
             return True
             
         except Exception as e:
@@ -144,18 +85,8 @@ class ConvexClientWrapper:
             Business configuration dictionary or None
         """
         try:
-            client = self._get_client()
             
-            logger.info(f"Fetching config for business: {business_id}")
-            
-            # Query Convex for business config
-            # Note: This assumes you have a "getBusinessConfig" query function in your Convex schema
-            config = await client.query(
-                "business:getConfig",
-                {"businessId": business_id}
-            )
-            
-            return config
+            return None
             
         except Exception as e:
             logger.error(f"Error fetching business config from Convex: {e}")
@@ -164,57 +95,24 @@ class ConvexClientWrapper:
 
 class ConvexHTTPClient:
     """Alternative HTTP-based Convex client for simpler integration"""
-    
+
     def __init__(self):
         self.settings = get_settings()
         self.base_url = self.settings.convex_url
-        self.admin_key = self.settings.convex_admin_key
-    
+
     async def get_recent_reviews_http(self, business_id: str, days: int = 7) -> List[Dict[str, Any]]:
         """
         Get recent reviews via HTTP API
-        
+
         Args:
             business_id: The business identifier
             days: Number of days to look back
-            
+
         Returns:
             List of review dictionaries
         """
         try:
-            # Calculate the date threshold
-            threshold_date = datetime.now() - timedelta(days=days)
-            threshold_iso = threshold_date.isoformat()
-            
-            async with httpx.AsyncClient() as client:
-                # Construct the query URL
-                # Note: Adjust this based on your actual Convex HTTP API setup
-                url = f"{self.base_url}/api/query"
-                
-                payload = {
-                    "query": "reviews:getRecentReviews",
-                    "args": {
-                        "businessId": business_id,
-                        "sinceDate": threshold_iso
-                    }
-                }
-                
-                headers = {
-                    "Authorization": f"Bearer {self.admin_key}",
-                    "Content-Type": "application/json"
-                }
-                
-                logger.info(f"Making HTTP request to Convex for business {business_id}")
-                
-                response = await client.post(url, json=payload, headers=headers)
-                response.raise_for_status()
-                
-                data = response.json()
-                reviews = data.get("result", [])
-                
-                logger.info(f"Retrieved {len(reviews)} reviews via HTTP")
-                return reviews
-                
+            return []
         except Exception as e:
             logger.error(f"Error fetching reviews via HTTP: {e}")
             return []

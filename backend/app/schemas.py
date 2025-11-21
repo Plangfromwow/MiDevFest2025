@@ -17,8 +17,8 @@ class ReviewBase(BaseModel):
 class ReviewAnalysis(BaseModel):
     """AI analysis results for a review"""
     reviewId: str = Field(..., description="Review identifier")
-    sentiment: str = Field(..., regex="^(positive|neutral|negative)$", description="Overall sentiment")
-    severity: str = Field(..., regex="^(low|medium|high)$", description="Severity level")
+    sentiment: str = Field(..., pattern="^(positive|neutral|negative)$", description="Overall sentiment")
+    severity: str = Field(..., pattern="^(low|medium|high)$", description="Severity level")
     themes: List[str] = Field(..., min_items=1, description="Key themes identified")
     suggestedReply: str = Field(..., description="Suggested public reply")
     autoReplyOk: bool = Field(..., description="Whether auto-reply is recommended")

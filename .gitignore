@@ -24,5 +24,35 @@ dist-ssr
 *.sw?
 
 # Ignored for the template, you probably want to remove it:
-package-lock.jsonbackend/.env.example
+package-lock.json# Environment files
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Claude Code
 .claude
+
+# Virtual environments
+.venv
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

@@ -16,9 +16,6 @@ google-auth==2.23.4
 google-auth-oauthlib==1.1.0
 google-api-python-client==2.108.0
 
-# IBM watsonx.ai
-ibm-watsonx-ai>=1.0.0
-
 # Convex (Python client)
 # Note: Install via: pip install convex
 # If convex package is not available, remove the import and use HTTP client only
