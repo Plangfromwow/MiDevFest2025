@@ -40,6 +40,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["*"],  # In production, specify exact origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -60,22 +61,47 @@ async def health_check():
 @app.post("/google/pull-reviews", response_model=PullReviewsResponse)
 async def pull_reviews(request: PullReviewsRequest):
     """
-    Fetch new reviews from Google Business Profile.
+    Fetch new reviews from Google Business Profile, analyze them, and store in Convex.
     
-    Convex Action should call this endpoint like:
+    Frontend should call this endpoint like:
     ```typescript
-    const response = await fetch(`${process.env.FASTAPI_URL}/google/pull-reviews`, {
+    const response = await fetch(`${BACKEND_URL}/google/pull-reviews`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ since_iso: "2025-11-01T00:00:00Z" })
+      body: JSON.stringify({ 
+        business_id: "businessId123",
+        since_iso: "2025-11-01T00:00:00Z" 
+      })
     });
     ```
     """
     try:
-        logger.info(f"Pulling reviews since: {request.since_iso}")
+        logger.info(f"Pulling reviews for business {request.business_id} since: {request.since_iso}")
+        
+        # Pull reviews from Google
         reviews = await reviews_service.pull_google_reviews(request.since_iso)
-        logger.info(f"Retrieved {len(reviews)} reviews")
-        return PullReviewsResponse(reviews=reviews)
+        logger.info(f"Retrieved {len(reviews)} reviews from Google")
+        
+        if not reviews:
+            return PullReviewsResponse(message="No new reviews found", count=0)
+        
+        # Analyze reviews with AI
+        logger.info(f"Analyzing {len(reviews)} reviews with AI")
+        analyses = await insights_service.analyze_reviews(reviews)
+        
+        # Store reviews in Convex
+        logger.info(f"Storing {len(reviews)} reviews in Convex")
+        stored_count = await reviews_service.store_reviews_in_convex(
+            request.business_id, 
+            reviews, 
+            analyses
+        )
+        
+        logger.info(f"Successfully processed and stored {stored_count} reviews")
+        return PullReviewsResponse(
+            message=f"Successfully imported {stored_count} reviews",
+            count=stored_count
+        )
     except Exception as e:
         logger.error(f"Error pulling reviews: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to pull reviews: {str(e)}")
