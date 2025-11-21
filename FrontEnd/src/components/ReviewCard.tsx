@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Doc } from '../../convex/_generated/dataModel';
+import { Star, MessageCircle } from 'lucide-react';
+import { FaGoogle, FaYelp, FaFacebook } from 'react-icons/fa';
 
 interface ReviewCardProps {
   review: Doc<'reviews'>;
@@ -23,11 +25,24 @@ export function ReviewCard({ review }: ReviewCardProps) {
     }
   };
 
+  const getSourceIcon = (source: string) => {
+    switch (source.toLowerCase()) {
+      case 'google':
+        return <FaGoogle className="w-5 h-5 text-[#4285F4]" />;
+      case 'yelp':
+        return <FaYelp className="w-5 h-5 text-[#FF1A1A]" />;
+      case 'facebook':
+        return <FaFacebook className="w-5 h-5 text-[#1877F2]" />;
+      default:
+        return <MessageCircle className="w-5 h-5" />;
+    }
+  };
+
   const getSourceBadgeColor = (source: string) => {
     switch (source.toLowerCase()) {
-      case 'google': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'yelp': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'facebook': return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200';
+      case 'google': return 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600';
+      case 'yelp': return 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600';
+      case 'facebook': return 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };
@@ -67,9 +82,10 @@ export function ReviewCard({ review }: ReviewCardProps) {
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSourceBadgeColor(review.source)}`}>
-            {review.source.toUpperCase()}
-          </span>
+          <div className={`px-2 py-1.5 rounded-full flex items-center gap-1.5 ${getSourceBadgeColor(review.source)}`}>
+            {getSourceIcon(review.source)}
+            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{review.source}</span>
+          </div>
           <div className="flex items-center gap-1">
             {renderStars(review.rating)}
           </div>

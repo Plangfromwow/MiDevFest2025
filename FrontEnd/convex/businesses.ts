@@ -97,6 +97,43 @@ export const addUserToBusiness = mutation({
   },
 });
 
+// Admin/testing mutation - no authentication required
+// Use this from Convex dashboard to connect users to businesses
+export const connectUserToBusiness = mutation({
+  args: {
+    businessId: v.id("businesses"),
+    userId: v.id("users"),
+    role: v.union(v.literal("owner"), v.literal("member")),
+  },
+  handler: async (ctx, args) => {
+    // Check if user is already a member
+    const existingMembership = await ctx.db
+      .query("businessMembers")
+      .withIndex("by_business_user", (q) => 
+        q.eq("businessId", args.businessId).eq("userId", args.userId)
+      )
+      .first();
+
+    if (existingMembership) {
+      throw new Error("User is already a member of this business");
+    }
+
+    // Add the user to the business
+    const membershipId = await ctx.db.insert("businessMembers", {
+      businessId: args.businessId,
+      userId: args.userId,
+      role: args.role,
+      joinedAt: Date.now(),
+    });
+
+    return { 
+      success: true, 
+      membershipId,
+      message: `User ${args.userId} added to business ${args.businessId} as ${args.role}`
+    };
+  },
+});
+
 export const getUserBusinesses = query({
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
