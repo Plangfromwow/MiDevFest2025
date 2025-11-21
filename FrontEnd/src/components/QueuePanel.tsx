@@ -17,7 +17,7 @@ export function QueuePanel({ queueType, businessId }: QueuePanelProps) {
   if (!reviews) {
     return (
       <div className="flex justify-center items-center h-32">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        <div className=" rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
       </div>
     );
   }

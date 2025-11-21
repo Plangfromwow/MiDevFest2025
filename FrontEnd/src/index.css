@@ -3,7 +3,11 @@
 @tailwind utilities;
 
 html {
-  @apply bg-white dark:bg-slate-900;
+  @apply bg-white text-slate-900;
+}
+
+html.dark {
+  @apply bg-slate-900 text-slate-50;
 }
 
 .accent-text {

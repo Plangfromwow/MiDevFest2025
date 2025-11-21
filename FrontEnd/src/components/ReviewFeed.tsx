@@ -160,7 +160,7 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
                   {['positive', 'negative', 'neutral'].map(sentiment => (
                     <label
                       key={sentiment}
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-600 cursor-pointer"
                     >
                       <input
                         type="checkbox"
@@ -196,7 +196,7 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
                   {['google', 'yelp', 'facebook'].map(platform => (
                     <label
                       key={platform}
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-600 cursor-pointer"
                     >
                       <input
                         type="checkbox"
@@ -232,7 +232,7 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
                   {[5, 4, 3, 2, 1].map(stars => (
                     <label
                       key={stars}
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-600 cursor-pointer"
                     >
                       <input
                         type="checkbox"

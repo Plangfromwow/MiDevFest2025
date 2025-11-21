@@ -43,7 +43,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
       case 'google': return 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600';
       case 'yelp': return 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600';
       case 'facebook': return 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600';
-      default: return 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200';
+      default: return 'bg-slate-50 text-slate-800 dark:bg-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600';
     }
   };
 
@@ -57,10 +57,10 @@ export function ReviewCard({ review }: ReviewCardProps) {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'low': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default: return 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200';
+      case 'low': return 'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-200 dark:border-green-800';
+      case 'medium': return 'bg-yellow-50 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800';
+      case 'high': return 'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200 border border-red-200 dark:border-red-800';
+      default: return 'bg-slate-50 text-slate-800 dark:bg-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600';
     }
   };
 
