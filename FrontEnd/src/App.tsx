@@ -5,13 +5,25 @@ import { SignOutButton } from "./SignOutButton";
 import { Toaster } from "sonner";
 import { Dashboard } from "./components/Dashboard";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { BusinessIdSetup } from "./components/BusinessIdSetup";
-import { useEffect } from "react";
+import { BusinessSetup } from "./components/BusinessSetup";
+import { BusinessSelector } from "./components/BusinessSelector";
+import { useEffect, useState } from "react";
+import { Id } from "../convex/_generated/dataModel";
 
 export default function App() {
   const seedData = useMutation(api.mockData.seedMockData);
+  const cleanupMigration = useMutation(api.migrations.cleanupUserBusinessIds);
 
   useEffect(() => {
+    // Run migration to clean up old businessId fields
+    const hasMigrated = localStorage.getItem("reputation-copilot-migrated");
+    if (!hasMigrated) {
+      cleanupMigration().then(() => {
+        localStorage.setItem("reputation-copilot-migrated", "true");
+        console.log("Migration completed");
+      }).catch(err => console.error("Error running migration:", err));
+    }
+    
     // Seed mock data on first load
     const hasSeeded = localStorage.getItem("reputation-copilot-seeded");
     if (!hasSeeded) {
@@ -19,7 +31,7 @@ export default function App() {
         localStorage.setItem("reputation-copilot-seeded", "true");
       }).catch(err => console.error("Error seeding mock data:", err));
     }
-  }, [seedData]);
+  }, [seedData, cleanupMigration]);
 
   return (
     <ThemeProvider>
@@ -29,7 +41,10 @@ export default function App() {
             Reputation Copilot
           </h2>
           <Authenticated>
-            <SignOutButton />
+            <div className="flex items-center gap-4">
+              <BusinessSelectorWrapper />
+              <SignOutButton />
+            </div>
           </Authenticated>
         </header>
         <main className="flex-1">
@@ -41,10 +56,49 @@ export default function App() {
   );
 }
 
-function Content() {
-  const currentUser = useQuery(api.users.getCurrentUser);
+// Business selector for the header (only shown when viewing dashboard)
+function BusinessSelectorWrapper() {
+  const userBusinesses = useQuery(api.businesses.getUserBusinesses);
+  
+  if (!userBusinesses || userBusinesses.length <= 1) {
+    return null;
+  }
+  
+  // Get current business from localStorage or first business
+  const currentBizId = localStorage.getItem("current-business-id");
+  
+  const handleBusinessChange = (businessId: Id<"businesses">) => {
+    localStorage.setItem("current-business-id", businessId);
+    window.location.reload(); // Simple approach to refresh with new business
+  };
+  
+  return <BusinessSelector currentBusinessId={currentBizId as Id<"businesses">} onBusinessChange={handleBusinessChange} />;
+}
 
-  if (currentUser === undefined) {
+function Content() {
+  const userBusinesses = useQuery(api.businesses.getUserBusinesses);
+  const [selectedBusinessId, setSelectedBusinessId] = useState<Id<"businesses"> | null>(null);
+
+  // Auto-select business from localStorage or first business
+  useEffect(() => {
+    if (userBusinesses && userBusinesses.length > 0 && !selectedBusinessId) {
+      const savedBizId = localStorage.getItem("current-business-id");
+      if (savedBizId && userBusinesses.some(b => b._id === savedBizId)) {
+        setSelectedBusinessId(savedBizId as Id<"businesses">);
+      } else {
+        setSelectedBusinessId(userBusinesses[0]._id);
+        localStorage.setItem("current-business-id", userBusinesses[0]._id);
+      }
+    }
+  }, [userBusinesses, selectedBusinessId]);
+  
+  // Handle business selection
+  const handleBusinessSelect = (businessId: Id<"businesses">) => {
+    setSelectedBusinessId(businessId);
+    localStorage.setItem("current-business-id", businessId);
+  };
+
+  if (userBusinesses === undefined) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -55,7 +109,17 @@ function Content() {
   return (
     <div className="h-full">
       <Authenticated>
-        {currentUser?.businessId ? <Dashboard /> : <BusinessIdSetup />}
+        {userBusinesses.length > 0 ? (
+          <>
+            {selectedBusinessId ? (
+              <Dashboard businessId={selectedBusinessId} />
+            ) : (
+              <BusinessSetup onBusinessSelect={handleBusinessSelect} />
+            )}
+          </>
+        ) : (
+          <BusinessSetup />
+        )}
       </Authenticated>
       <Unauthenticated>
         <div className="flex flex-col items-center justify-center min-h-[50vh] p-8">

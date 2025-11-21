@@ -84,7 +84,8 @@ export default defineSchema({
   ...authTables,
   users: defineTable({
     ...authTables.users.validator.fields,
+    // Temporary field for migration - will be removed
     businessId: v.optional(v.string()),
-  }).index("by_business", ["businessId"]),
+  }),
   ...applicationTables,
 });
