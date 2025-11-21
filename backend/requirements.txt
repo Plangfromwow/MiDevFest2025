@@ -31,5 +31,9 @@ black==23.11.0
 isort==5.12.0
 mypy==1.7.1
 
+# IBM Watson services
+ibm-watson>=8.0.0
+ibm-watsonx-ai>=1.0.0
+
 # Security
 cryptography==41.0.7

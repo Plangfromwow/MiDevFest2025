@@ -7,10 +7,12 @@ from .schemas import (
     PullReviewsRequest, PullReviewsResponse,
     AnalyzeReviewsRequest, AnalyzeReviewsResponse,
     PostReplyRequest, PostReplyResponse,
-    WeeklyInsightsRequest, WeeklyInsightsResponse
+    WeeklyInsightsRequest, WeeklyInsightsResponse,
+    ReviewInsightsRequest, ReviewInsightsResponse
 )
 from .services.reviews_service import ReviewsService
 from .services.insights_service import InsightsService
+from .services.review_insights_service import ReviewInsightsService
 from .config import get_settings
 
 # Configure logging
@@ -45,6 +47,7 @@ app.add_middleware(
 # Initialize services
 reviews_service = ReviewsService()
 insights_service = InsightsService()
+review_insights_service = ReviewInsightsService()
 
 
 @app.get("/health")
@@ -156,6 +159,47 @@ async def weekly_insights(request: WeeklyInsightsRequest):
         return WeeklyInsightsResponse(businessId=request.businessId, insights=insights)
     except Exception as e:
         logger.error(f"Error generating insights: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate insights: {str(e)}")
+
+
+@app.post("/ai/review-insights", response_model=ReviewInsightsResponse)
+async def review_insights(request: ReviewInsightsRequest):
+    """
+    Analyze a single review and generate complete insights using IBM Watson NLU and watsonx.ai.
+    
+    This endpoint:
+    1. Analyzes sentiment using IBM Watson NLU
+    2. Converts sentiment score to 1-10 scale  
+    3. Generates themes and reply using watsonx.ai Granite
+    4. Applies deterministic business rules for severity and auto-reply
+    
+    Example usage:
+    ```typescript
+    const response = await fetch(`${process.env.FASTAPI_URL}/ai/review-insights`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        comment: "Great service, very friendly staff!",
+        rating: 5,
+        businessContext: "Family restaurant in downtown area"
+      })
+    });
+    ```
+    """
+    try:
+        logger.info(f"Generating insights for {request.rating}-star review")
+        
+        insights = await review_insights_service.analyze_review_insights(
+            comment=request.comment,
+            rating=request.rating,
+            business_context=request.businessContext
+        )
+        
+        logger.info(f"Generated insights: {insights.sentiment} sentiment, {insights.severity} severity")
+        return insights
+        
+    except Exception as e:
+        logger.error(f"Error generating review insights: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to generate insights: {str(e)}")
 
 

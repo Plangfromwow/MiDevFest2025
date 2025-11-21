@@ -56,6 +56,13 @@ class WeeklyInsightsRequest(BaseModel):
     reviews: Optional[List[ReviewBase]] = Field(None, description="Optional reviews data if not fetching from Convex")
 
 
+class ReviewInsightsRequest(BaseModel):
+    """Request to analyze a single review and generate insights"""
+    comment: str = Field(..., description="Review text content")
+    rating: int = Field(..., ge=1, le=5, description="Star rating 1-5")
+    businessContext: Optional[str] = Field(None, description="Optional business context for better analysis")
+
+
 # Response Models
 class PullReviewsResponse(BaseModel):
     """Response from pulling reviews"""
@@ -77,6 +84,15 @@ class WeeklyInsightsResponse(BaseModel):
     """Response with weekly insights"""
     businessId: str = Field(..., description="Business identifier")
     insights: WeeklyInsights = Field(..., description="Generated insights")
+
+
+class ReviewInsightsResponse(BaseModel):
+    """Response with review insights analysis"""
+    autoReplyOK: bool = Field(..., description="Whether auto-reply is recommended")
+    recommendedPublicReply: str = Field(..., description="Suggested public reply text")
+    sentiment: str = Field(..., pattern="^(positive|neutral|negative)$", description="Sentiment analysis result")
+    severity: str = Field(..., pattern="^(low|medium|high)$", description="Issue severity level")
+    themes: List[str] = Field(..., description="Key themes identified from the review")
 
 
 # Error Models
