@@ -25,13 +25,13 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting Reputation Copilot API")
+    logger.info("Starting Review Radar API")
     yield
-    logger.info("Shutting down Reputation Copilot API")
+    logger.info("Shutting down Review Radar API")
 
 
 app = FastAPI(
-    title="Reputation Copilot API",
+    title="Review Radar API",
     description="Backend API for managing Google Business Profile reviews and AI insights",
     version="1.0.0",
     lifespan=lifespan

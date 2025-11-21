@@ -1,6 +1,6 @@
-# Reputation Copilot - FastAPI Backend
+# Review Radar - FastAPI Backend
 
-FastAPI backend service for the Reputation Copilot app that integrates Google Business Profile Reviews, IBM watsonx.ai, and Convex database.
+FastAPI backend service for the Review Radar app that integrates Google Business Profile Reviews, IBM watsonx.ai, and Convex database.
 
 ## Quick Start
 
