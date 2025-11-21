@@ -2,13 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-light: #ffffff;
-  --color-dark: #171717;
-}
-
 .accent-text {
-  @apply text-slate-600;
+  @apply text-slate-600 dark:text-slate-400;
 }
 
 body {
@@ -28,8 +23,7 @@ body {
     "Segoe UI Emoji",
     "Segoe UI Symbol",
     "Noto Color Emoji";
-  color: var(--color-dark);
-  background: var(--color-light);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* only use this to update the style of the auth input fields. use a different class for all other input fields */

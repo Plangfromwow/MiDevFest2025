@@ -9,10 +9,9 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#2563eb',
-          hover: '#1d4ed8',
+          DEFAULT: '#3b82f6',
+          hover: '#2563eb',
         },
-        secondary: '#64748b',
       },
       spacing: {
         'section': '2rem',

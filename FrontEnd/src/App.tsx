@@ -16,15 +16,15 @@ export default function App() {
     if (!hasSeeded) {
       seedData().then(() => {
         localStorage.setItem("reputation-copilot-seeded", "true");
-      });
+      }).catch(err => console.error("Error seeding mock data:", err));
     }
   }, [seedData]);
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors">
-        <header className="sticky top-0 z-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm h-16 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 shadow-sm px-4">
-          <h2 className="text-xl font-semibold text-blue-600 dark:text-blue-400">
+      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
+        <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm h-16 flex justify-between items-center border-b border-slate-200 dark:border-slate-700 shadow-sm px-4">
+          <h2 className="text-xl font-semibold text-blue-500 dark:text-blue-400">
             Reputation Copilot
           </h2>
           <Authenticated>
@@ -46,7 +46,7 @@ function Content() {
   if (loggedInUser === undefined) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -59,10 +59,10 @@ function Content() {
       <Unauthenticated>
         <div className="flex flex-col items-center justify-center min-h-[50vh] p-8">
           <div className="w-full max-w-md mx-auto text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-50 mb-4">
               Reputation Copilot
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
+            <p className="text-xl text-slate-600 dark:text-slate-400">
               Manage customer reviews with AI-powered insights
             </p>
           </div>
