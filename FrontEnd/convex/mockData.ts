@@ -262,7 +262,9 @@ export const linkUserToBusiness = mutation({
 
 function getWeekStart(date: Date): Date {
   const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
   const day = d.getDay();
   const diff = d.getDate() - day;
-  return new Date(d.setDate(diff));
+  d.setDate(diff);
+  return d;
 }

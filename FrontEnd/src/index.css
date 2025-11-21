@@ -3,11 +3,7 @@
 @tailwind utilities;
 
 html {
-  @apply bg-slate-900;
-}
-
-html.dark {
-  background-color: rgb(15 23 42) !important; /* slate-900 */
+  @apply bg-white dark:bg-slate-900;
 }
 
 .accent-text {
@@ -32,7 +28,7 @@ body {
     "Segoe UI Symbol",
     "Noto Color Emoji";
   transition: background-color 0.3s ease, color 0.3s ease;
-  @apply bg-slate-50 dark:bg-slate-900;
+  @apply bg-white dark:bg-slate-900;
   min-height: 100vh;
 }
 

@@ -43,9 +43,9 @@ export function QueuePanel({ queueType, businessId }: QueuePanelProps) {
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
               {title} ({reviews.length})
-            </h3>
+            </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {description}
             </p>
@@ -69,7 +69,7 @@ export function QueuePanel({ queueType, businessId }: QueuePanelProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-4 max-h-96 overflow-y-auto">
+        <div className="space-y-4">
           {reviews.map((review) => (
             <div key={review._id} className="border border-gray-200 dark:border-gray-600 rounded-lg">
               <ReviewCard review={review} />
