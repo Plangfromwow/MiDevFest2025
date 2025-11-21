@@ -1,6 +1,25 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+export const clearAllReviews = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Clear all reviews
+    const existingReviews = await ctx.db.query("reviews").collect();
+    for (const review of existingReviews) {
+      await ctx.db.delete(review._id);
+    }
+
+    // Clear all insights
+    const existingInsights = await ctx.db.query("insights").collect();
+    for (const insight of existingInsights) {
+      await ctx.db.delete(insight._id);
+    }
+
+    return { success: true, deletedReviews: existingReviews.length, deletedInsights: existingInsights.length };
+  },
+});
+
 export const seedMockData = mutation({
   args: {},
   handler: async (ctx) => {

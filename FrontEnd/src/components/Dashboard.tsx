@@ -3,7 +3,7 @@ import { ReviewFeed } from './ReviewFeed';
 import { QueuePanel } from './QueuePanel';
 import { InsightStrip } from './InsightStrip';
 import { Id } from '../../convex/_generated/dataModel';
-import { pullGoogleReviews } from '../services/api';
+import { pullMockGoogleReviews } from '../services/api';
 import { toast } from 'sonner';
 import { RefreshCw } from 'lucide-react';
 
@@ -18,11 +18,11 @@ export function Dashboard({ businessId }: DashboardProps) {
   const handlePullReviews = async () => {
     setIsPulling(true);
     try {
-      toast.info('Fetching and analyzing reviews from Google...');
+      toast.info('Fetching and analyzing reviews...');
       
-      // Backend will handle: fetch from Google -> analyze with AI -> store in Convex
+      // Backend will handle: fetch reviews -> analyze with AI -> store in Convex
       // Convex will automatically update our UI when new reviews are added
-      const result = await pullGoogleReviews(businessId);
+      const result = await pullMockGoogleReviews(businessId);
       
       if (result.count === 0) {
         toast.info('No new reviews found');
@@ -57,7 +57,7 @@ export function Dashboard({ businessId }: DashboardProps) {
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
             >
               <RefreshCw className={`w-4 h-4 ${isPulling ? 'animate-spin' : ''}`} />
-              {isPulling ? 'Pulling Reviews...' : 'Pull Google Reviews'}
+              {isPulling ? 'Syncing Reviews...' : 'Sync Reviews'}
             </button>
           </div>
           <ReviewFeed businessId={businessId} />

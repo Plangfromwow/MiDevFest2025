@@ -16,7 +16,7 @@ import { InsightStrip } from "./components/InsightStrip";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Id } from "../convex/_generated/dataModel";
-import { pullGoogleReviews } from "./services/api";
+import { pullMockGoogleReviews } from "./services/api";
 import { RefreshCw } from "lucide-react";
 
 // Reviews page component with pull button
@@ -26,11 +26,11 @@ function ReviewsPage({ businessId }: { businessId: Id<"businesses"> }) {
   const handlePullReviews = async () => {
     setIsPulling(true);
     try {
-      toast.info('Fetching and analyzing reviews from Google...');
+      toast.info('Fetching and analyzing reviews...');
       
-      // Backend will handle: fetch from Google -> analyze with AI -> store in Convex
+      // Backend will handle: fetch reviews -> analyze with AI -> store in Convex
       // Convex will automatically update our UI when new reviews are added
-      const result = await pullGoogleReviews(businessId);
+      const result = await pullMockGoogleReviews(businessId);
       
       if (result.count === 0) {
         toast.info('No new reviews found');
@@ -57,7 +57,7 @@ function ReviewsPage({ businessId }: { businessId: Id<"businesses"> }) {
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
         >
           <RefreshCw className={`w-4 h-4 ${isPulling ? 'animate-spin' : ''}`} />
-          {isPulling ? 'Pulling Reviews...' : 'Pull Google Reviews'}
+          {isPulling ? 'Syncing Reviews...' : 'Sync Reviews'}
         </button>
       </div>
       <ReviewFeed businessId={businessId} />
@@ -104,9 +104,11 @@ export default function App() {
 // Business selector for the header (only shown when viewing dashboard)
 function BusinessSelectorWrapper() {
   const seedData = useMutation(api.mockData.seedMockData);
+  const clearReviews = useMutation(api.mockData.clearAllReviews);
   const cleanupMigration = useMutation(api.migrations.cleanupUserBusinessIds);
   const userBusinesses = useQuery(api.businesses.getUserBusinesses);
   const [isReseeding, setIsReseeding] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   
   useEffect(() => {
     // Run migration to clean up old businessId fields (only when authenticated)
@@ -118,12 +120,12 @@ function BusinessSelectorWrapper() {
       }).catch(err => console.error("Error running migration:", err));
     }
     
-    // Seed mock data on first load (only when authenticated)
+    // Seed sample data on first load (only when authenticated)
     const hasSeeded = localStorage.getItem("reputation-copilot-seeded");
     if (!hasSeeded) {
       seedData().then(() => {
         localStorage.setItem("reputation-copilot-seeded", "true");
-      }).catch(err => console.error("Error seeding mock data:", err));
+      }).catch(err => console.error("Error seeding sample data:", err));
     }
   }, [seedData, cleanupMigration]);
   
@@ -139,6 +141,22 @@ function BusinessSelectorWrapper() {
         setIsReseeding(false);
       });
   };
+
+  const handleClearReviews = () => {
+    if (!confirm("Are you sure you want to delete ALL reviews and insights? This cannot be undone.")) {
+      return;
+    }
+    setIsClearing(true);
+    clearReviews()
+      .then((result) => {
+        console.log(`Cleared ${result.deletedReviews} reviews and ${result.deletedInsights} insights`);
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.error("Error clearing reviews:", err);
+        setIsClearing(false);
+      });
+  };
   
   // Get current business from localStorage or first business
   const currentBizId = localStorage.getItem("current-business-id");
@@ -150,16 +168,26 @@ function BusinessSelectorWrapper() {
   
   return (
     <div className="flex items-center gap-2">
-      {/* Dev helper: Reseed data button */}
+      {/* Dev helper: Clear and Reseed buttons */}
       {import.meta.env.DEV && (
-        <button
-          onClick={handleReseed}
-          disabled={isReseeding}
-          className="px-3 py-1 text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-50"
-          title="Reseed mock data for current week"
-        >
-          {isReseeding ? "⏳" : "🔄 Reseed"}
-        </button>
+        <>
+          <button
+            onClick={handleClearReviews}
+            disabled={isClearing}
+            className="px-3 py-1 text-xs bg-red-200 dark:bg-red-900 hover:bg-red-300 dark:hover:bg-red-800 text-red-800 dark:text-red-200 rounded transition-colors disabled:opacity-50"
+            title="Clear all reviews and insights"
+          >
+            {isClearing ? "⏳" : "🗑️ Clear All"}
+          </button>
+          <button
+            onClick={handleReseed}
+            disabled={isReseeding}
+            className="px-3 py-1 text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded transition-colors disabled:opacity-50"
+            title="Reseed sample data for current week"
+          >
+            {isReseeding ? "⏳" : "🔄 Reseed"}
+          </button>
+        </>
       )}
       
       {userBusinesses && userBusinesses.length > 1 && (

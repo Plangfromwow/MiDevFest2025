@@ -275,6 +275,23 @@ class ReviewsService:
                 except:
                     date_timestamp = int(datetime.now().timestamp() * 1000)
                 
+                # Build triage object, excluding None/null values for optional fields
+                triage = {
+                    "sentiment": analysis.sentiment,
+                    "severity": analysis.severity,
+                    "themes": analysis.themes,
+                    "recommendedPublicReply": analysis.suggestedReply,
+                    "autoReplyOK": analysis.autoReplyOk,
+                }
+                
+                # Add optional fields only if they have values
+                if analysis.severity == "high":
+                    triage["escalationReason"] = "High severity review requires attention"
+                    triage["suggestedOwnerAction"] = "Review and respond personally"
+                
+                if analysis.privateOutreachDraft:
+                    triage["suggestedPrivateOutreach"] = analysis.privateOutreachDraft
+                
                 # Store in Convex
                 review_id = await self.convex_client.store_review(
                     business_id=business_id,
@@ -283,16 +300,7 @@ class ReviewsService:
                     rating=review.rating,
                     text=review.text,
                     date=date_timestamp,
-                    triage={
-                        "sentiment": analysis.sentiment,
-                        "severity": analysis.severity,
-                        "themes": analysis.themes,
-                        "recommendedPublicReply": analysis.suggestedReply,
-                        "autoReplyOK": analysis.autoReplyOk,
-                        "escalationReason": "High severity review requires attention" if analysis.severity == "high" else None,
-                        "suggestedOwnerAction": "Review and respond personally" if analysis.severity == "high" else None,
-                        "suggestedPrivateOutreach": analysis.privateOutreachDraft
-                    },
+                    triage=triage,
                     images=[]
                 )
                 
