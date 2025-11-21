@@ -1,4 +1,5 @@
-import { useQuery } from 'convex/react';
+import { useState } from 'react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { ReviewCard } from './ReviewCard';
 import { Id } from '../../convex/_generated/dataModel';
@@ -10,6 +11,8 @@ interface QueuePanelProps {
 
 export function QueuePanel({ queueType, businessId }: QueuePanelProps) {
   const reviews = useQuery(api.reviews.getReviewsByQueue, { queueType, businessId });
+  const approveAll = useMutation(api.reviews.approveAllAutoReplies);
+  const [isApproving, setIsApproving] = useState(false);
 
   if (!reviews) {
     return (
@@ -24,15 +27,39 @@ export function QueuePanel({ queueType, businessId }: QueuePanelProps) {
     ? 'Reviews ready for automated responses'
     : 'High-severity reviews requiring owner attention';
 
+  const handleApproveAll = async () => {
+    setIsApproving(true);
+    try {
+      await approveAll({ businessId });
+    } catch (error) {
+      console.error('Failed to approve all reviews:', error);
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
   return (
     <div>
       <div className="mb-4">
-        <h3 className="font-semibold text-gray-900 dark:text-white">
-          {title} ({reviews.length})
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          {description}
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-gray-900 dark:text-white">
+              {title} ({reviews.length})
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              {description}
+            </p>
+          </div>
+          {queueType === 'auto-reply' && reviews.length > 0 && (
+            <button
+              onClick={handleApproveAll}
+              disabled={isApproving}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+            >
+              {isApproving ? 'Approving...' : 'Approve All'}
+            </button>
+          )}
+        </div>
       </div>
 
       {reviews.length === 0 ? (

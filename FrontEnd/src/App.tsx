@@ -7,15 +7,48 @@ import { Dashboard } from "./components/Dashboard";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { BusinessSetup } from "./components/BusinessSetup";
 import { BusinessSelector } from "./components/BusinessSelector";
+import { BusinessInfo } from "./components/BusinessInfo";
+import { Navigation } from "./components/Navigation";
 import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Id } from "../convex/_generated/dataModel";
 
 export default function App() {
+
+  return (
+    <BrowserRouter>
+      <ThemeProvider>
+        <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
+          <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm h-16 flex justify-between items-center border-b border-slate-200 dark:border-slate-700 shadow-sm px-4">
+            <h2 className="text-xl font-semibold text-blue-500 dark:text-blue-400">
+              Reputation Copilot
+            </h2>
+            <Authenticated>
+              <div className="flex items-center gap-4">
+                <Navigation />
+                <BusinessSelectorWrapper />
+                <SignOutButton />
+              </div>
+            </Authenticated>
+          </header>
+          <main className="flex-1">
+            <Content />
+          </main>
+          <Toaster />
+        </div>
+      </ThemeProvider>
+    </BrowserRouter>
+  );
+}
+
+// Business selector for the header (only shown when viewing dashboard)
+function BusinessSelectorWrapper() {
   const seedData = useMutation(api.mockData.seedMockData);
   const cleanupMigration = useMutation(api.migrations.cleanupUserBusinessIds);
-
+  const userBusinesses = useQuery(api.businesses.getUserBusinesses);
+  
   useEffect(() => {
-    // Run migration to clean up old businessId fields
+    // Run migration to clean up old businessId fields (only when authenticated)
     const hasMigrated = localStorage.getItem("reputation-copilot-migrated");
     if (!hasMigrated) {
       cleanupMigration().then(() => {
@@ -24,7 +57,7 @@ export default function App() {
       }).catch(err => console.error("Error running migration:", err));
     }
     
-    // Seed mock data on first load
+    // Seed mock data on first load (only when authenticated)
     const hasSeeded = localStorage.getItem("reputation-copilot-seeded");
     if (!hasSeeded) {
       seedData().then(() => {
@@ -32,33 +65,6 @@ export default function App() {
       }).catch(err => console.error("Error seeding mock data:", err));
     }
   }, [seedData, cleanupMigration]);
-
-  return (
-    <ThemeProvider>
-      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors">
-        <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm h-16 flex justify-between items-center border-b border-slate-200 dark:border-slate-700 shadow-sm px-4">
-          <h2 className="text-xl font-semibold text-blue-500 dark:text-blue-400">
-            Reputation Copilot
-          </h2>
-          <Authenticated>
-            <div className="flex items-center gap-4">
-              <BusinessSelectorWrapper />
-              <SignOutButton />
-            </div>
-          </Authenticated>
-        </header>
-        <main className="flex-1">
-          <Content />
-        </main>
-        <Toaster />
-      </div>
-    </ThemeProvider>
-  );
-}
-
-// Business selector for the header (only shown when viewing dashboard)
-function BusinessSelectorWrapper() {
-  const userBusinesses = useQuery(api.businesses.getUserBusinesses);
   
   if (!userBusinesses || userBusinesses.length <= 1) {
     return null;
@@ -112,7 +118,10 @@ function Content() {
         {userBusinesses.length > 0 ? (
           <>
             {selectedBusinessId ? (
-              <Dashboard businessId={selectedBusinessId} />
+              <Routes>
+                <Route path="/" element={<Dashboard businessId={selectedBusinessId} />} />
+                <Route path="/business-info" element={<BusinessInfo businessId={selectedBusinessId} />} />
+              </Routes>
             ) : (
               <BusinessSetup onBusinessSelect={handleBusinessSelect} />
             )}
