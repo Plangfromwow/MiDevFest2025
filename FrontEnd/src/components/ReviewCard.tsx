@@ -40,10 +40,10 @@ export function ReviewCard({ review }: ReviewCardProps) {
 
   const getSourceBadgeColor = (source: string) => {
     switch (source.toLowerCase()) {
-      case 'google': return 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600';
-      case 'yelp': return 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600';
-      case 'facebook': return 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      case 'google': return 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600';
+      case 'yelp': return 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600';
+      case 'facebook': return 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600';
+      default: return 'bg-slate-50 text-slate-800 dark:bg-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600';
     }
   };
 
@@ -57,10 +57,10 @@ export function ReviewCard({ review }: ReviewCardProps) {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'low': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      case 'low': return 'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-200 dark:border-green-800';
+      case 'medium': return 'bg-yellow-50 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800';
+      case 'high': return 'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200 border border-red-200 dark:border-red-800';
+      default: return 'bg-slate-50 text-slate-800 dark:bg-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600';
     }
   };
 
@@ -69,7 +69,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
       <span
         key={i}
         className={`text-lg ${
-          i < rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
+          i < rating ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'
         }`}
       >
         ★
@@ -78,52 +78,52 @@ export function ReviewCard({ review }: ReviewCardProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className={`px-2 py-1.5 rounded-full flex items-center gap-1.5 ${getSourceBadgeColor(review.source)}`}>
             {getSourceIcon(review.source)}
-            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{review.source}</span>
+            <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{review.source}</span>
           </div>
           <div className="flex items-center gap-1">
             {renderStars(review.rating)}
           </div>
         </div>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-sm text-slate-500 dark:text-slate-400">
           {new Date(review.date).toLocaleDateString()}
         </div>
       </div>
 
       {/* Author and Review Text */}
       <div className="mb-4">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+        <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
           {review.author}
         </h3>
-        <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+        <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
           {review.text}
         </p>
       </div>
 
       {/* AI Analysis */}
-      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
-        <h4 className="font-medium text-gray-900 dark:text-white mb-3">AI Analysis</h4>
+      <div className="bg-white border border-slate-100 dark:bg-slate-700/50 dark:border-slate-600 rounded-lg p-4 mb-4">
+        <h4 className="font-medium text-slate-900 dark:text-white mb-3">AI Analysis</h4>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
           <div className="flex flex-col gap-1">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Sentiment:</span>
+            <span className="text-sm text-slate-600 dark:text-slate-400">Sentiment:</span>
             <span className={`font-medium capitalize ${getSentimentColor(review.triage.sentiment)}`}>
               {review.triage.sentiment}
             </span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Severity:</span>
+            <span className="text-sm text-slate-600 dark:text-slate-400">Severity:</span>
             <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium w-fit ${getSeverityColor(review.triage.severity)}`}>
               {review.triage.severity.toUpperCase()}
             </span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Auto-Reply:</span>
+            <span className="text-sm text-slate-600 dark:text-slate-400">Auto-Reply:</span>
             <span className={`font-medium ${review.triage.autoReplyOK ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
               {review.triage.autoReplyOK ? 'OK' : 'Manual'}
             </span>
@@ -132,7 +132,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
 
         {review.triage.themes.length > 0 && (
           <div className="mb-3">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Themes:</span>
+            <span className="text-sm text-slate-600 dark:text-slate-400">Themes:</span>
             <div className="flex flex-wrap gap-2 mt-1">
               {review.triage.themes.map((theme, index) => (
                 <span
@@ -148,7 +148,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
 
         {review.triage.escalationReason && (
           <div className="mb-3">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Escalation Reason:</span>
+            <span className="text-sm text-slate-600 dark:text-slate-400">Escalation Reason:</span>
             <p className="text-sm text-red-600 dark:text-red-400 mt-1">
               {review.triage.escalationReason}
             </p>
@@ -161,11 +161,11 @@ export function ReviewCard({ review }: ReviewCardProps) {
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-green-600 dark:text-green-400 font-medium">✓ Replied</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-slate-500 dark:text-slate-400">
               {review.replyDate && new Date(review.replyDate).toLocaleDateString()}
             </span>
           </div>
-          <p className="text-sm text-gray-700 dark:text-gray-300">
+          <p className="text-sm text-slate-700 dark:text-slate-300">
             {review.replyText}
           </p>
         </div>
@@ -188,13 +188,13 @@ export function ReviewCard({ review }: ReviewCardProps) {
           ) : (
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Public Reply
                 </label>
                 <textarea
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white resize-none"
                   rows={3}
                   placeholder="Write your reply..."
                 />
@@ -208,7 +208,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
                 </button>
                 <button
                   onClick={() => setShowReplyForm(false)}
-                  className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors text-sm font-medium"
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors text-sm font-medium"
                 >
                   Cancel
                 </button>

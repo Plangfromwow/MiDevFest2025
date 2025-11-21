@@ -1,6 +1,5 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const getReviews = query({
   args: { 
@@ -8,29 +7,18 @@ export const getReviews = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    // Auth check removed for POC - allow Python backend to query
+    // Still check if businessId is required
+    if (!args.businessId) {
+      // For POC, just return empty if no businessId provided
       return [];
-    }
-
-    // Get businessId from args or user's first business
-    let businessId = args.businessId;
-    if (!businessId) {
-      const userBusiness = await ctx.db
-        .query("businessMembers")
-        .withIndex("by_user", (q) => q.eq("userId", userId))
-        .first();
-      if (!userBusiness) {
-        return [];
-      }
-      businessId = userBusiness.businessId;
     }
 
     const limit = args.limit || 50;
 
     return await ctx.db
       .query("reviews")
-      .withIndex("by_business", (q) => q.eq("businessId", businessId))
+      .withIndex("by_business", (q) => q.eq("businessId", args.businessId!))
       .order("desc")
       .take(limit);
   },
@@ -42,27 +30,14 @@ export const getReviewsByQueue = query({
     queueType: v.union(v.literal("auto-reply"), v.literal("escalation")),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    // Auth check removed for POC - allow Python backend to query
+    if (!args.businessId) {
       return [];
-    }
-
-    // Get businessId from args or user's first business
-    let businessId = args.businessId;
-    if (!businessId) {
-      const userBusiness = await ctx.db
-        .query("businessMembers")
-        .withIndex("by_user", (q) => q.eq("userId", userId))
-        .first();
-      if (!userBusiness) {
-        return [];
-      }
-      businessId = userBusiness.businessId;
     }
 
     const reviews = await ctx.db
       .query("reviews")
-      .withIndex("by_business", (q) => q.eq("businessId", businessId))
+      .withIndex("by_business", (q) => q.eq("businessId", args.businessId!))
       .filter((q) => q.eq(q.field("replied"), undefined))
       .collect();
 
@@ -83,11 +58,7 @@ export const markReviewReplied = mutation({
     replyText: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
+    // Auth check removed for POC - Python backend doesn't have auth
     await ctx.db.patch(args.reviewId, {
       replied: true,
       replyText: args.replyText,
@@ -101,11 +72,7 @@ export const approveAllAutoReplies = mutation({
     businessId: v.id("businesses"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
+    // Auth check removed for POC - Python backend doesn't have auth
     // Get all unreplied reviews that are ready for auto-reply
     const reviews = await ctx.db
       .query("reviews")
@@ -134,22 +101,9 @@ export const approveAllAutoReplies = mutation({
 export const getWeeklyInsights = query({
   args: { businessId: v.optional(v.id("businesses")) },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    // Auth check removed for POC - allow Python backend to query
+    if (!args.businessId) {
       return null;
-    }
-
-    // Get businessId from args or user's first business
-    let businessId = args.businessId;
-    if (!businessId) {
-      const userBusiness = await ctx.db
-        .query("businessMembers")
-        .withIndex("by_user", (q) => q.eq("userId", userId))
-        .first();
-      if (!userBusiness) {
-        return null;
-      }
-      businessId = userBusiness.businessId;
     }
 
     const weekStart = getWeekStart(new Date());
@@ -157,15 +111,105 @@ export const getWeeklyInsights = query({
     return await ctx.db
       .query("insights")
       .withIndex("by_business_week", (q) => 
-        q.eq("businessId", businessId).eq("weekStart", weekStart.getTime())
+        q.eq("businessId", args.businessId!).eq("weekStart", weekStart.getTime())
       )
       .first();
   },
 });
 
+// Mutation for Python backend to store reviews
+export const storeReview = mutation({
+  args: {
+    businessId: v.id("businesses"),
+    source: v.string(),
+    author: v.string(),
+    rating: v.number(),
+    text: v.string(),
+    date: v.number(),
+    images: v.optional(v.array(v.string())),
+    triage: v.object({
+      sentiment: v.union(v.literal("positive"), v.literal("neutral"), v.literal("negative")),
+      severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+      themes: v.array(v.string()),
+      recommendedPublicReply: v.string(),
+      autoReplyOK: v.boolean(),
+      escalationReason: v.optional(v.string()),
+      suggestedOwnerAction: v.optional(v.string()),
+      suggestedPrivateOutreach: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    // Auth check removed for POC - Python backend doesn't have auth
+    const reviewId = await ctx.db.insert("reviews", {
+      businessId: args.businessId,
+      source: args.source,
+      author: args.author,
+      rating: args.rating,
+      text: args.text,
+      date: args.date,
+      images: args.images || [],
+      triage: args.triage,
+    });
+    return reviewId;
+  },
+});
+
+// Mutation for Python backend to store weekly insights
+export const storeWeeklyInsights = mutation({
+  args: {
+    businessId: v.id("businesses"),
+    topComplaintThemes: v.array(v.object({
+      theme: v.string(),
+      count: v.number(),
+    })),
+    ratingRiskScore: v.number(),
+    improvementSuggestion: v.string(),
+    totalReviews: v.number(),
+    averageRating: v.number(),
+  },
+  handler: async (ctx, args) => {
+    // Auth check removed for POC - Python backend doesn't have auth
+    const weekStart = getWeekStart(new Date());
+    
+    // Check if insights already exist for this week
+    const existing = await ctx.db
+      .query("insights")
+      .withIndex("by_business_week", (q) => 
+        q.eq("businessId", args.businessId).eq("weekStart", weekStart.getTime())
+      )
+      .first();
+    
+    if (existing) {
+      // Update existing insights
+      await ctx.db.patch(existing._id, {
+        topComplaintThemes: args.topComplaintThemes,
+        ratingRiskScore: args.ratingRiskScore,
+        improvementSuggestion: args.improvementSuggestion,
+        totalReviews: args.totalReviews,
+        averageRating: args.averageRating,
+      });
+      return existing._id;
+    } else {
+      // Create new insights
+      const insightId = await ctx.db.insert("insights", {
+        businessId: args.businessId,
+        weekStart: weekStart.getTime(),
+        topComplaintThemes: args.topComplaintThemes,
+        ratingRiskScore: args.ratingRiskScore,
+        improvementSuggestion: args.improvementSuggestion,
+        totalReviews: args.totalReviews,
+        averageRating: args.averageRating,
+      });
+      return insightId;
+    }
+  },
+});
+
 function getWeekStart(date: Date): Date {
   const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
   const day = d.getDay();
   const diff = d.getDate() - day;
-  return new Date(d.setDate(diff));
+  d.setDate(diff);
+  return d;
 }

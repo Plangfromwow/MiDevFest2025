@@ -9,13 +9,10 @@ export const createBusiness = mutation({
     industry: v.optional(v.string()),
     googlePlaceId: v.optional(v.string()),
     yelpBusinessId: v.optional(v.string()),
+    userId: v.optional(v.id("users")), // Optional for POC
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
+    // Auth check removed for POC - Python backend doesn't have auth
     const now = Date.now();
     const businessId = await ctx.db.insert("businesses", {
       name: args.name,
@@ -27,13 +24,15 @@ export const createBusiness = mutation({
       updatedAt: now,
     });
 
-    // Add the creator as an owner
-    await ctx.db.insert("businessMembers", {
-      businessId,
-      userId,
-      role: "owner",
-      joinedAt: now,
-    });
+    // Add the creator as an owner if userId provided
+    if (args.userId) {
+      await ctx.db.insert("businessMembers", {
+        businessId,
+        userId: args.userId,
+        role: "owner",
+        joinedAt: now,
+      });
+    }
 
     return businessId;
   },
@@ -46,22 +45,7 @@ export const addUserToBusiness = mutation({
     role: v.union(v.literal("owner"), v.literal("member")),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
-    // Verify the current user is an owner of this business
-    const membership = await ctx.db
-      .query("businessMembers")
-      .withIndex("by_business_user", (q) => 
-        q.eq("businessId", args.businessId).eq("userId", userId)
-      )
-      .first();
-
-    if (!membership || membership.role !== "owner") {
-      throw new Error("Only business owners can add members");
-    }
+    // Auth check removed for POC - Python backend doesn't have auth
 
     // Find the user to add by email
     const userToAdd = await ctx.db
@@ -165,23 +149,7 @@ export const getUserBusinesses = query({
 export const getBusiness = query({
   args: { businessId: v.id("businesses") },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      return null;
-    }
-
-    // Verify user has access to this business
-    const membership = await ctx.db
-      .query("businessMembers")
-      .withIndex("by_business_user", (q) => 
-        q.eq("businessId", args.businessId).eq("userId", userId)
-      )
-      .first();
-
-    if (!membership) {
-      return null;
-    }
-
+    // Auth check removed for POC - allow Python backend to query
     return await ctx.db.get(args.businessId);
   },
 });
@@ -235,22 +203,7 @@ export const removeUserFromBusiness = mutation({
     userIdToRemove: v.id("users"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
-    // Verify the current user is an owner of this business
-    const membership = await ctx.db
-      .query("businessMembers")
-      .withIndex("by_business_user", (q) => 
-        q.eq("businessId", args.businessId).eq("userId", userId)
-      )
-      .first();
-
-    if (!membership || membership.role !== "owner") {
-      throw new Error("Only business owners can remove members");
-    }
+    // Auth check removed for POC - Python backend doesn't have auth
 
     // Find the membership to remove
     const membershipToRemove = await ctx.db
@@ -297,22 +250,7 @@ export const updateBusiness = mutation({
     facebookPageId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
-    // Verify the current user is an owner of this business
-    const membership = await ctx.db
-      .query("businessMembers")
-      .withIndex("by_business_user", (q) => 
-        q.eq("businessId", args.businessId).eq("userId", userId)
-      )
-      .first();
-
-    if (!membership || membership.role !== "owner") {
-      throw new Error("Only business owners can update business information");
-    }
+    // Auth check removed for POC - Python backend doesn't have auth
 
     const { businessId, ...updateData } = args;
     

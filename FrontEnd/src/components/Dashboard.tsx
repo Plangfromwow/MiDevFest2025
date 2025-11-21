@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ReviewFeed } from './ReviewFeed';
 import { QueuePanel } from './QueuePanel';
 import { InsightStrip } from './InsightStrip';
-import { ThemeToggle } from './ThemeToggle';
 import { Id } from '../../convex/_generated/dataModel';
 
 interface DashboardProps {
@@ -25,7 +24,6 @@ export function Dashboard({ businessId }: DashboardProps) {
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
               Review Feed
             </h2>
-            <ThemeToggle />
           </div>
           <ReviewFeed businessId={businessId} />
         </div>

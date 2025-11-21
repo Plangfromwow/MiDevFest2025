@@ -69,18 +69,21 @@ class InsightsService:
             List of ReviewBase objects
         """
         try:
-            # Try to get reviews from Convex
-            reviews_data = await self.convex_client.get_recent_reviews(business_id, days)
+            # Get reviews from Convex via HTTP
+            reviews_data = await self.convex_client.get_reviews(business_id, limit=100)
             
-            # If no results, try HTTP client as fallback
-            if not reviews_data:
-                logger.info("Falling back to HTTP client for Convex")
-                reviews_data = await self.convex_http_client.get_recent_reviews_http(business_id, days)
+            # Filter by date range if needed
+            cutoff_date = datetime.now() - timedelta(days=days)
+            cutoff_ms = int(cutoff_date.timestamp() * 1000)
             
             # Convert to ReviewBase objects
             reviews = []
             for review_data in reviews_data:
                 try:
+                    # Skip reviews older than cutoff
+                    if review_data.get('date', 0) < cutoff_ms:
+                        continue
+                        
                     review = ReviewBase(**review_data)
                     reviews.append(review)
                 except Exception as e:

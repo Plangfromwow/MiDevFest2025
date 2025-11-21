@@ -21,8 +21,8 @@ export function Navigation() {
             to={item.path}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               isActive
-                ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+                ? "bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
+                : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-700"
             }`}
           >
             <Icon className="w-4 h-4" />
