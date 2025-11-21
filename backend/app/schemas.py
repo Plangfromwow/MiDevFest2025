@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict, Any
 from datetime import datetime
 
 
@@ -93,6 +93,18 @@ class ReviewInsightsResponse(BaseModel):
     sentiment: str = Field(..., pattern="^(positive|neutral|negative)$", description="Sentiment analysis result")
     severity: str = Field(..., pattern="^(low|medium|high)$", description="Issue severity level")
     themes: List[str] = Field(..., description="Key themes identified from the review")
+
+
+class ReviewWithAnalysis(BaseModel):
+    """Combined model with review data and its analysis"""
+    review: ReviewBase = Field(..., description="Original review data")
+    analysis: ReviewInsightsResponse = Field(..., description="AI analysis of the review")
+
+
+class MockReviewsWithAnalysisResponse(BaseModel):
+    """Response with mock reviews and their analyses"""
+    reviews_with_analysis: List[ReviewWithAnalysis] = Field(..., description="List of reviews with their analyses")
+    summary: Dict[str, Any] = Field(..., description="Summary statistics of the analysis")
 
 
 # Error Models
