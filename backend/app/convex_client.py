@@ -287,6 +287,172 @@ class ConvexHTTPClient:
         except Exception as e:
             logger.error(f"Error creating business in Convex: {e}")
             return None
+    
+    async def update_business(
+        self,
+        business_id: str,
+        name: str,
+        description: Optional[str] = None,
+        industry: Optional[str] = None,
+        address: Optional[str] = None,
+        phone: Optional[str] = None,
+        email: Optional[str] = None,
+        website: Optional[str] = None,
+        google_place_id: Optional[str] = None,
+        yelp_business_id: Optional[str] = None,
+        facebook_page_id: Optional[str] = None
+    ) -> bool:
+        """
+        Update a business in Convex
+        
+        Args:
+            business_id: The business identifier
+            name: Business name
+            description: Optional description
+            industry: Optional industry
+            address: Optional address
+            phone: Optional phone number
+            email: Optional email
+            website: Optional website URL
+            google_place_id: Optional Google Place ID
+            yelp_business_id: Optional Yelp Business ID
+            facebook_page_id: Optional Facebook Page ID
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            data = {
+                "businessId": business_id,
+                "name": name,
+                "description": description,
+                "industry": industry,
+                "address": address,
+                "phone": phone,
+                "email": email,
+                "website": website,
+                "googlePlaceId": google_place_id,
+                "yelpBusinessId": yelp_business_id,
+                "facebookPageId": facebook_page_id
+            }
+            
+            result = await self._make_request("update-business", data)
+            success = result.get("success", False)
+            
+            if success:
+                logger.info(f"Successfully updated business in Convex: {business_id}")
+            else:
+                logger.error(f"Failed to update business: {result.get('error')}")
+                
+            return success
+            
+        except Exception as e:
+            logger.error(f"Error updating business in Convex: {e}")
+            return False
+    
+    async def get_business(self, business_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get business details from Convex
+        
+        Args:
+            business_id: The business identifier
+            
+        Returns:
+            Business data dictionary if successful, None otherwise
+        """
+        try:
+            data = {"businessId": business_id}
+            
+            result = await self._make_request("get-business", data)
+            if result.get("success"):
+                business = result.get("business")
+                logger.info(f"Retrieved business from Convex: {business_id}")
+                return business
+            else:
+                logger.error(f"Failed to get business: {result.get('error')}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error getting business from Convex: {e}")
+            return None
+    
+    async def get_business_members(self, business_id: str) -> List[Dict[str, Any]]:
+        """
+        Get members of a business from Convex
+        
+        Args:
+            business_id: The business identifier
+            
+        Returns:
+            List of member dictionaries
+        """
+        try:
+            data = {"businessId": business_id}
+            
+            result = await self._make_request("get-business-members", data)
+            if result.get("success"):
+                members = result.get("members", [])
+                logger.info(f"Retrieved {len(members)} members for business: {business_id}")
+                return members
+            else:
+                logger.error(f"Failed to get business members: {result.get('error')}")
+                return []
+                
+        except Exception as e:
+            logger.error(f"Error getting business members from Convex: {e}")
+            return []
+    
+    async def get_weekly_insights(self, business_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get weekly insights for a business from Convex
+        
+        Args:
+            business_id: The business identifier
+            
+        Returns:
+            Insights data dictionary if successful, None otherwise
+        """
+        try:
+            data = {"businessId": business_id}
+            
+            result = await self._make_request("get-weekly-insights", data)
+            if result.get("success"):
+                insights = result.get("insights")
+                logger.info(f"Retrieved weekly insights for business: {business_id}")
+                return insights
+            else:
+                logger.error(f"Failed to get weekly insights: {result.get('error')}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error getting weekly insights from Convex: {e}")
+            return None
+    
+    async def approve_all_auto_replies(self, business_id: str) -> Optional[int]:
+        """
+        Approve all auto-reply eligible reviews for a business
+        
+        Args:
+            business_id: The business identifier
+            
+        Returns:
+            Number of reviews approved if successful, None otherwise
+        """
+        try:
+            data = {"businessId": business_id}
+            
+            result = await self._make_request("approve-all-auto-replies", data)
+            if result.get("success"):
+                count = result.get("count", 0)
+                logger.info(f"Approved {count} auto-replies for business: {business_id}")
+                return count
+            else:
+                logger.error(f"Failed to approve auto-replies: {result.get('error')}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error approving auto-replies in Convex: {e}")
+            return None
 
 
 # Global client instance
