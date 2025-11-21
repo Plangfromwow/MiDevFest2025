@@ -4,6 +4,14 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
+  css: {
+    devSourcemap: true,
+  },
+  server: {
+    hmr: {
+      overlay: true,
+    },
+  },
   plugins: [
     react(),
     // The code below enables dev tools like taking screenshots of your site

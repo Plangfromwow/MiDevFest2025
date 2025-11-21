@@ -281,3 +281,46 @@ export const removeUserFromBusiness = mutation({
     return { success: true };
   },
 });
+
+export const updateBusiness = mutation({
+  args: {
+    businessId: v.id("businesses"),
+    name: v.string(),
+    description: v.optional(v.string()),
+    industry: v.optional(v.string()),
+    address: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    email: v.optional(v.string()),
+    website: v.optional(v.string()),
+    googlePlaceId: v.optional(v.string()),
+    yelpBusinessId: v.optional(v.string()),
+    facebookPageId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    // Verify the current user is an owner of this business
+    const membership = await ctx.db
+      .query("businessMembers")
+      .withIndex("by_business_user", (q) => 
+        q.eq("businessId", args.businessId).eq("userId", userId)
+      )
+      .first();
+
+    if (!membership || membership.role !== "owner") {
+      throw new Error("Only business owners can update business information");
+    }
+
+    const { businessId, ...updateData } = args;
+    
+    await ctx.db.patch(businessId, {
+      ...updateData,
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});

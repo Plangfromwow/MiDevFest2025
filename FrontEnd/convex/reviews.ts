@@ -96,6 +96,41 @@ export const markReviewReplied = mutation({
   },
 });
 
+export const approveAllAutoReplies = mutation({
+  args: {
+    businessId: v.id("businesses"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    // Get all unreplied reviews that are ready for auto-reply
+    const reviews = await ctx.db
+      .query("reviews")
+      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
+      .filter((q) => q.eq(q.field("replied"), undefined))
+      .collect();
+
+    const autoReplyReviews = reviews.filter(r => 
+      r.triage.autoReplyOK && 
+      (r.triage.severity === "low" || r.triage.severity === "medium")
+    );
+
+    // Mark all as replied with their recommended replies
+    for (const review of autoReplyReviews) {
+      await ctx.db.patch(review._id, {
+        replied: true,
+        replyText: review.triage.recommendedPublicReply,
+        replyDate: Date.now(),
+      });
+    }
+
+    return { count: autoReplyReviews.length };
+  },
+});
+
 export const getWeeklyInsights = query({
   args: { businessId: v.optional(v.id("businesses")) },
   handler: async (ctx, args) => {

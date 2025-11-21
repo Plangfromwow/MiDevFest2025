@@ -109,22 +109,22 @@ export function ReviewCard({ review }: ReviewCardProps) {
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
         <h4 className="font-medium text-gray-900 dark:text-white mb-3">AI Analysis</h4>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-          <div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+          <div className="flex flex-col gap-1">
             <span className="text-sm text-gray-600 dark:text-gray-400">Sentiment:</span>
-            <span className={`ml-2 font-medium capitalize ${getSentimentColor(review.triage.sentiment)}`}>
+            <span className={`font-medium capitalize ${getSentimentColor(review.triage.sentiment)}`}>
               {review.triage.sentiment}
             </span>
           </div>
-          <div>
+          <div className="flex flex-col gap-1">
             <span className="text-sm text-gray-600 dark:text-gray-400">Severity:</span>
-            <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(review.triage.severity)}`}>
+            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium w-fit ${getSeverityColor(review.triage.severity)}`}>
               {review.triage.severity.toUpperCase()}
             </span>
           </div>
-          <div>
+          <div className="flex flex-col gap-1">
             <span className="text-sm text-gray-600 dark:text-gray-400">Auto-Reply:</span>
-            <span className={`ml-2 font-medium ${review.triage.autoReplyOK ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            <span className={`font-medium ${review.triage.autoReplyOK ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
               {review.triage.autoReplyOK ? 'OK' : 'Manual'}
             </span>
           </div>

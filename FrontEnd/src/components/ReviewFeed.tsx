@@ -15,6 +15,7 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
   const [selectedSentiments, setSelectedSentiments] = useState<string[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [selectedStars, setSelectedStars] = useState<number[]>([]);
+  const [showReplied, setShowReplied] = useState(true);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -32,6 +33,9 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
     if (!reviews) return [];
     
     return reviews.filter(review => {
+      if (!showReplied && review.replied) {
+        return false;
+      }
       if (selectedSentiments.length > 0 && !selectedSentiments.includes(review.triage.sentiment)) {
         return false;
       }
@@ -43,7 +47,7 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
       }
       return true;
     });
-  }, [reviews, selectedSentiments, selectedPlatforms, selectedStars]);
+  }, [reviews, selectedSentiments, selectedPlatforms, selectedStars, showReplied]);
 
   const toggleFilter = <T extends string | number>(
     filterArray: T[], 
@@ -134,7 +138,7 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
 
       {/* Filter Panel */}
       <div ref={dropdownRef} className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 ${showFilters ? 'block lg:block' : 'hidden lg:block'}`}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
             {/* Sentiment Filter */}
             <div className="relative">
               <label className="block font-medium text-gray-900 dark:text-white mb-2">
@@ -244,6 +248,21 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Show Replied Reviews Checkbox */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showReplied}
+                onChange={(e) => setShowReplied(e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Show replied reviews
+              </span>
+            </label>
           </div>
         </div>
 
