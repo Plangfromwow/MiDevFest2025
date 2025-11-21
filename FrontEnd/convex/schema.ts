@@ -3,6 +3,39 @@ import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 
 const applicationTables = {
+  businesses: defineTable({
+    name: v.string(),
+    description: v.optional(v.string()),
+    industry: v.optional(v.string()),
+    // Contact information
+    address: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    email: v.optional(v.string()),
+    website: v.optional(v.string()),
+    // Review platform identifiers (for AI backend to fetch reviews)
+    googlePlaceId: v.optional(v.string()),
+    yelpBusinessId: v.optional(v.string()),
+    facebookPageId: v.optional(v.string()),
+    // Metadata
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_name", ["name"])
+    .searchIndex("search_business", {
+      searchField: "name",
+      filterFields: ["industry"],
+    }),
+
+  businessMembers: defineTable({
+    businessId: v.id("businesses"),
+    userId: v.id("users"),
+    role: v.union(v.literal("owner"), v.literal("member")),
+    joinedAt: v.number(),
+  })
+    .index("by_business", ["businessId"])
+    .index("by_user", ["userId"])
+    .index("by_business_user", ["businessId", "userId"]),
+
   reviews: defineTable({
     source: v.string(), // "google", "yelp", "facebook", etc.
     author: v.string(),
@@ -10,7 +43,7 @@ const applicationTables = {
     text: v.string(),
     date: v.number(), // timestamp
     images: v.array(v.string()), // image URLs
-    businessId: v.string(), // to support multiple businesses
+    businessId: v.id("businesses"),
     triage: v.object({
       sentiment: v.union(v.literal("positive"), v.literal("neutral"), v.literal("negative")),
       severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
@@ -34,7 +67,7 @@ const applicationTables = {
     }),
 
   insights: defineTable({
-    businessId: v.string(),
+    businessId: v.id("businesses"),
     weekStart: v.number(), // timestamp for start of week
     topComplaintThemes: v.array(v.object({
       theme: v.string(),
@@ -49,5 +82,9 @@ const applicationTables = {
 
 export default defineSchema({
   ...authTables,
+  users: defineTable({
+    ...authTables.users.validator.fields,
+    businessId: v.optional(v.string()),
+  }).index("by_business", ["businessId"]),
   ...applicationTables,
 });

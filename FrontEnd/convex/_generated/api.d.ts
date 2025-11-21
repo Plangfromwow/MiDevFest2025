@@ -18,6 +18,7 @@ import type * as http from "../http.js";
 import type * as mockData from "../mockData.js";
 import type * as reviews from "../reviews.js";
 import type * as router from "../router.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   mockData: typeof mockData;
   reviews: typeof reviews;
   router: typeof router;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

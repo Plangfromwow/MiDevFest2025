@@ -5,15 +5,7 @@ export function InsightStrip() {
   const insights = useQuery(api.reviews.getWeeklyInsights, {});
 
   if (!insights) {
-    return (
-      <div className="bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800 p-4">
-        <div className="animate-pulse flex space-x-4">
-          <div className="h-4 bg-blue-200 dark:bg-blue-700 rounded w-1/4"></div>
-          <div className="h-4 bg-blue-200 dark:bg-blue-700 rounded w-1/4"></div>
-          <div className="h-4 bg-blue-200 dark:bg-blue-700 rounded w-1/4"></div>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const getRiskColor = (score: number) => {

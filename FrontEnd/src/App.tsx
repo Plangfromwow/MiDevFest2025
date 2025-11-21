@@ -5,6 +5,7 @@ import { SignOutButton } from "./SignOutButton";
 import { Toaster } from "sonner";
 import { Dashboard } from "./components/Dashboard";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { BusinessIdSetup } from "./components/BusinessIdSetup";
 import { useEffect } from "react";
 
 export default function App() {
@@ -41,9 +42,9 @@ export default function App() {
 }
 
 function Content() {
-  const loggedInUser = useQuery(api.auth.loggedInUser);
+  const currentUser = useQuery(api.users.getCurrentUser);
 
-  if (loggedInUser === undefined) {
+  if (currentUser === undefined) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -54,7 +55,7 @@ function Content() {
   return (
     <div className="h-full">
       <Authenticated>
-        <Dashboard />
+        {currentUser?.businessId ? <Dashboard /> : <BusinessIdSetup />}
       </Authenticated>
       <Unauthenticated>
         <div className="flex flex-col items-center justify-center min-h-[50vh] p-8">

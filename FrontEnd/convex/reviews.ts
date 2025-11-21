@@ -4,7 +4,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const getReviews = query({
   args: { 
-    businessId: v.optional(v.string()),
+    businessId: v.optional(v.id("businesses")),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -13,7 +13,19 @@ export const getReviews = query({
       return [];
     }
 
-    const businessId = args.businessId || "default-business";
+    // Get businessId from args or user's first business
+    let businessId = args.businessId;
+    if (!businessId) {
+      const userBusiness = await ctx.db
+        .query("businessMembers")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .first();
+      if (!userBusiness) {
+        return [];
+      }
+      businessId = userBusiness.businessId;
+    }
+
     const limit = args.limit || 50;
 
     return await ctx.db
@@ -26,7 +38,7 @@ export const getReviews = query({
 
 export const getReviewsByQueue = query({
   args: { 
-    businessId: v.optional(v.string()),
+    businessId: v.optional(v.id("businesses")),
     queueType: v.union(v.literal("auto-reply"), v.literal("escalation")),
   },
   handler: async (ctx, args) => {
@@ -35,7 +47,19 @@ export const getReviewsByQueue = query({
       return [];
     }
 
-    const businessId = args.businessId || "default-business";
+    // Get businessId from args or user's first business
+    let businessId = args.businessId;
+    if (!businessId) {
+      const userBusiness = await ctx.db
+        .query("businessMembers")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .first();
+      if (!userBusiness) {
+        return [];
+      }
+      businessId = userBusiness.businessId;
+    }
+
     const reviews = await ctx.db
       .query("reviews")
       .withIndex("by_business", (q) => q.eq("businessId", businessId))
@@ -73,14 +97,26 @@ export const markReviewReplied = mutation({
 });
 
 export const getWeeklyInsights = query({
-  args: { businessId: v.optional(v.string()) },
+  args: { businessId: v.optional(v.id("businesses")) },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       return null;
     }
 
-    const businessId = args.businessId || "default-business";
+    // Get businessId from args or user's first business
+    let businessId = args.businessId;
+    if (!businessId) {
+      const userBusiness = await ctx.db
+        .query("businessMembers")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .first();
+      if (!userBusiness) {
+        return null;
+      }
+      businessId = userBusiness.businessId;
+    }
+
     const weekStart = getWeekStart(new Date());
 
     return await ctx.db
