@@ -9,7 +9,7 @@ from .schemas import (
     PostReplyRequest, PostReplyResponse,
     WeeklyInsightsRequest, WeeklyInsightsResponse,
     ReviewInsightsRequest, ReviewInsightsResponse,
-    ReviewBase, ReviewWithAnalysis, MockReviewsWithAnalysisResponse
+    ReviewBase, ReviewAnalysis, ReviewWithAnalysis, MockReviewsWithAnalysisResponse
 )
 from .services.reviews_service import ReviewsService
 from .services.insights_service import InsightsService
@@ -230,104 +230,142 @@ async def review_insights(request: ReviewInsightsRequest):
         raise HTTPException(status_code=500, detail=f"Failed to generate insights: {str(e)}")
 
 
-@app.get("/mockReviews", response_model=list[ReviewBase])
-async def mock_reviews():
+@app.post("/google/mock-reviews", response_model=PullReviewsResponse)
+async def mock_google_reviews(request: PullReviewsRequest):
     """
-    Returns 10 mock coffee shop reviews for testing purposes.
-    5 positive, 2 neutral, 3 negative with realistic content and employee names.
-    """
-    mock_data = [
-        # 5 POSITIVE REVIEWS (4-5 stars)
-        ReviewBase(
-            source="google",
-            reviewId="review_001",
-            rating=5,
-            text="Absolutely fantastic coffee! Sarah at the counter was incredibly friendly and made the perfect latte art. The atmosphere is cozy and perfect for working. I've become a regular and the quality is consistently excellent. Highly recommend their signature blend!",
-            reviewerName="Michael Rodriguez",
-            createdAt="2025-11-20T09:15:00Z"
-        ),
-        ReviewBase(
-            source="google", 
-            reviewId="review_002",
-            rating=5,
-            text="This place is a hidden gem! The barista Jake knows his craft - best cappuccino in town. Great selection of pastries and the wifi is fast. I love how they remember my usual order. Perfect spot for morning meetings or quiet study sessions.",
-            reviewerName="Emma Thompson",
-            createdAt="2025-11-19T08:30:00Z"
-        ),
-        ReviewBase(
-            source="google",
-            reviewId="review_003", 
-            rating=4,
-            text="Really enjoy coming here for my afternoon break. The coffee is always fresh and hot, and the staff is welcoming. Good variety of drinks and reasonable prices. The seating area could be bigger but overall a great local coffee shop.",
-            reviewerName="David Chen",
-            createdAt="2025-11-18T14:45:00Z"
-        ),
-        ReviewBase(
-            source="google",
-            reviewId="review_004",
-            rating=5,
-            text="Wow! Lisa made me the most amazing cold brew I've ever had. The beans are clearly high quality and you can taste the difference. Clean environment, friendly staff, and they even have oat milk options. Will definitely be back tomorrow!",
-            reviewerName="Sophie Williams",
-            createdAt="2025-11-17T16:20:00Z"
-        ),
-        ReviewBase(
-            source="google", 
-            reviewId="review_005",
-            rating=4,
-            text="Solid coffee shop with great vibes. The morning crew is efficient and the coffee is consistently good. I appreciate that they support local suppliers. The muffins are fresh baked daily. Only wish they had more outdoor seating.",
-            reviewerName="James Parker",
-            createdAt="2025-11-16T07:45:00Z"
-        ),
-        
-        # 2 NEUTRAL REVIEWS (3 stars)
-        ReviewBase(
-            source="google",
-            reviewId="review_006", 
-            rating=3,
-            text="It's okay. Coffee is decent but nothing special. The service was friendly enough but seemed understaffed during my visit. Prices are fair for the area. Might come back if I'm in the neighborhood but wouldn't go out of my way.",
-            reviewerName="Rachel Green",
-            createdAt="2025-11-15T11:30:00Z"
-        ),
-        ReviewBase(
-            source="google",
-            reviewId="review_007",
-            rating=3, 
-            text="Average coffee shop experience. The latte was a bit weak for my taste and the pastry selection was limited. Staff was polite and the place was clean. Not bad but not memorable either. There are better options nearby.",
-            reviewerName="Thomas Anderson",
-            createdAt="2025-11-14T13:15:00Z"
-        ),
-        
-        # 3 NEGATIVE REVIEWS (1-2 stars) with repetitive pattern: slow service
-        ReviewBase(
-            source="google", 
-            reviewId="review_008",
-            rating=2,
-            text="Really disappointed with the slow service today. Waited 15 minutes for a simple coffee while Mark seemed completely overwhelmed behind the counter. The drink was lukewarm when I finally got it and they got my order wrong. For $6, I expect much better.",
-            reviewerName="Jennifer Lopez",
-            createdAt="2025-11-13T12:00:00Z"
-        ),
-        ReviewBase(
-            source="google",
-            reviewId="review_009",
-            rating=1, 
-            text="Terrible experience. Extremely slow service - took over 20 minutes to get my order. The staff looked disorganized and my coffee was cold by the time I received it. Multiple customers were complaining about wait times. Won't be returning.",
-            reviewerName="Robert Johnson",
-            createdAt="2025-11-12T10:20:00Z"
-        ),
-        ReviewBase(
-            source="google",
-            reviewId="review_010",
-            rating=2,
-            text="Painfully slow service ruins what could be a nice coffee shop. Stood in line for 25 minutes during lunch rush with only 2 people ahead of me. The barista seemed new and kept making mistakes. Coffee was mediocre and overpriced. Very frustrating experience.",
-            reviewerName="Amanda Davis",
-            createdAt="2025-11-11T12:45:00Z"
-        )
-    ]
+    Generate mock Google reviews for Olympic Food and store them in Convex.
+    This replaces the actual Google API call for testing purposes.
     
-    logger.info("Returning 10 mock coffee shop reviews")
-    return mock_data
-
-
+    Frontend should call this endpoint like:
+    ```typescript
+    const response = await fetch(`${BACKEND_URL}/google/mock-reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        business_id: "businessId123"
+      })
+    });
+    ```
+    """
+    try:
+        logger.info(f"Generating mock reviews for business {request.business_id}")
+        
+        # Generate mock reviews for Olympic Food
+        mock_data = [
+            # POSITIVE REVIEWS
+            ReviewBase(
+                source="google",
+                reviewId="mock_review_001",
+                rating=5,
+                text="Best gyros in Detroit! The lamb is perfectly seasoned and the tzatziki sauce is incredible. Family-owned place with authentic flavors. Been coming here for years!",
+                reviewerName="Marcus Johnson",
+                createdAt="2025-11-20T09:15:00Z"
+            ),
+            ReviewBase(
+                source="google",
+                reviewId="mock_review_002",
+                rating=5,
+                text="Authentic Middle Eastern food that reminds me of home! The shawarma and hummus are phenomenal. Generous portions and reasonable prices. Highly recommend!",
+                reviewerName="Ahmed Hassan",
+                createdAt="2025-11-19T08:30:00Z"
+            ),
+            ReviewBase(
+                source="google",
+                reviewId="mock_review_003",
+                rating=5,
+                text="Hidden gem in Detroit! The grape leaves are the best I've ever had. Owner came by our table and made us feel like family. Great prices too. Will definitely be back!",
+                reviewerName="Darius Brown",
+                createdAt="2025-11-18T14:45:00Z"
+            ),
+            ReviewBase(
+                source="google",
+                reviewId="mock_review_004",
+                rating=4,
+                text="Solid Greek food. The spanakopita was amazing! Only complaint is parking can be tough during busy times.",
+                reviewerName="Michael O'Brien",
+                createdAt="2025-11-17T16:20:00Z"
+            ),
+            ReviewBase(
+                source="google",
+                reviewId="mock_review_005",
+                rating=4,
+                text="Good food and nice atmosphere. The falafel was a bit dry but everything else was delicious. Service could be faster but the staff is friendly.",
+                reviewerName="Lisa Chen",
+                createdAt="2025-11-16T07:45:00Z"
+            ),
+            # NEUTRAL REVIEWS
+            ReviewBase(
+                source="google",
+                reviewId="mock_review_006",
+                rating=3,
+                text="Decent Mediterranean food but nothing extraordinary. Pricing is fair. The place could use some updating - looks a bit dated inside.",
+                reviewerName="Sarah Thompson",
+                createdAt="2025-11-15T11:30:00Z"
+            ),
+            # NEGATIVE REVIEWS
+            ReviewBase(
+                source="google",
+                reviewId="mock_review_007",
+                rating=2,
+                text="Waited over 45 minutes for our order during lunch rush. Food was cold when we finally got it. Manager didn't seem to care when we complained. Very disappointing.",
+                reviewerName="Jennifer Martinez",
+                createdAt="2025-11-13T12:00:00Z"
+            ),
+            ReviewBase(
+                source="google",
+                reviewId="mock_review_008",
+                rating=1,
+                text="Found a hair in my food. When I told the staff, they were defensive and argumentative instead of apologetic. Absolutely unacceptable. Health department should know about this.",
+                reviewerName="Robert Williams",
+                createdAt="2025-11-12T10:20:00Z"
+            )
+        ]
+        
+        logger.info(f"Generated {len(mock_data)} mock reviews for Olympic Food")
+        
+        # Analyze each review individually using the review insights service
+        logger.info(f"Analyzing {len(mock_data)} reviews with AI")
+        analyses = []
+        for review in mock_data:
+            try:
+                insights = await review_insights_service.analyze_review_insights(
+                    comment=review.text,
+                    rating=review.rating,
+                    business_context="Family-owned Mediterranean restaurant serving authentic Greek and Middle Eastern cuisine"
+                )
+                
+                # Convert ReviewInsightsResponse to ReviewAnalysis format
+                analysis = ReviewAnalysis(
+                    reviewId=review.reviewId,
+                    sentiment=insights.sentiment,
+                    severity=insights.severity,
+                    themes=insights.themes,
+                    suggestedReply=insights.recommendedPublicReply,
+                    autoReplyOk=insights.autoReplyOK,
+                    privateOutreachDraft=None
+                )
+                analyses.append(analysis)
+                
+            except Exception as e:
+                logger.error(f"Failed to analyze review {review.reviewId}: {e}")
+                continue
+        
+        # Store reviews in Convex
+        logger.info(f"Storing {len(mock_data)} reviews in Convex")
+        stored_count = await reviews_service.store_reviews_in_convex(
+            request.business_id,
+            mock_data,
+            analyses
+        )
+        
+        logger.info(f"Successfully processed and stored {stored_count} mock reviews")
+        return PullReviewsResponse(
+            message=f"Successfully imported {stored_count} mock reviews for Olympic Food",
+            count=stored_count
+        )
+    except Exception as e:
+        logger.error(f"Error generating mock reviews: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate mock reviews: {str(e)}")
 @app.get("/mockReviewsWithAnalysis", response_model=MockReviewsWithAnalysisResponse)
 async def mock_reviews_with_analysis():
     """
