@@ -333,7 +333,7 @@ export function BusinessInfo({ businessId }: BusinessInfoProps) {
             {members.map((member) => (
               <div
                 key={member.membershipId}
-                className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700 rounded-lg"
+                className="flex justify-between items-center p-3 bg-white border border-slate-100 dark:bg-slate-700 dark:border-slate-600 rounded-lg"
               >
                 <div>
                   <p className="font-medium text-slate-900 dark:text-slate-50">

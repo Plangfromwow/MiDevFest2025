@@ -93,7 +93,7 @@ export function BusinessSetup({ onBusinessSelect }: BusinessSetupProps = {}) {
   };
 
   return (
-    <div className="min-h-screen p-4 bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen p-4 bg-white dark:bg-slate-900">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 mb-6">
           <div className="flex justify-between items-center mb-6">

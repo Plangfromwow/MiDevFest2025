@@ -48,4 +48,8 @@ window.addEventListener('message', async (message) => {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    emptyOutDir: true,
+    sourcemap: true,
+  },
 }));

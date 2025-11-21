@@ -80,7 +80,7 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
   return (
     <div className="space-y-4">
       {/* Filter Toggle and Summary - Only visible on mobile */}
-      <div className="lg:hidden flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+      <div className="lg:hidden flex items-center justify-between bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4">
         <button
           onClick={() => setShowFilters(!showFilters)}
           className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
@@ -98,22 +98,22 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
           {activeFilterCount > 0 && (
             <button
               onClick={clearAllFilters}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
             >
               Clear all
             </button>
           )}
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-sm text-slate-600 dark:text-slate-400">
             {filteredReviews.length} of {reviews.length} reviews
           </span>
         </div>
       </div>
 
       {/* Desktop Summary Bar - Always visible on desktop */}
-      <div className="hidden lg:flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+      <div className="hidden lg:flex items-center justify-between bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4">
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-          <span className="font-medium text-gray-900 dark:text-white">Filters</span>
+          <Filter className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+          <span className="font-medium text-slate-900 dark:text-white">Filters</span>
           {activeFilterCount > 0 && (
             <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               {activeFilterCount}
@@ -137,38 +137,38 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
       </div>
 
       {/* Filter Panel */}
-      <div ref={dropdownRef} className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 ${showFilters ? 'block lg:block' : 'hidden lg:block'}`}>
+      <div ref={dropdownRef} className={`bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4 ${showFilters ? 'block lg:block' : 'hidden lg:block'}`}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
             {/* Sentiment Filter */}
             <div className="relative">
-              <label className="block font-medium text-gray-900 dark:text-white mb-2">
+              <label className="block font-medium text-slate-900 dark:text-white mb-2">
                 Sentiment
               </label>
               <button
                 onClick={() => setOpenDropdown(openDropdown === 'sentiment' ? null : 'sentiment')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-left flex items-center justify-between hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-left flex items-center justify-between hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
-                <span className="text-gray-700 dark:text-gray-300">
+                <span className="text-slate-700 dark:text-slate-300">
                   {selectedSentiments.length === 0 
                     ? 'Select sentiment...' 
                     : `${selectedSentiments.length} selected`}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${openDropdown === 'sentiment' ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${openDropdown === 'sentiment' ? 'rotate-180' : ''}`} />
               </button>
               {openDropdown === 'sentiment' && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg">
                   {['positive', 'negative', 'neutral'].map(sentiment => (
                     <label
                       key={sentiment}
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer"
                     >
                       <input
                         type="checkbox"
                         checked={selectedSentiments.includes(sentiment)}
                         onChange={() => toggleFilter(selectedSentiments, sentiment, setSelectedSentiments)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">{sentiment}</span>
+                      <span className="text-sm text-slate-700 dark:text-slate-300 capitalize">{sentiment}</span>
                     </label>
                   ))}
                 </div>
@@ -177,34 +177,34 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
 
             {/* Platform Filter */}
             <div className="relative">
-              <label className="block font-medium text-gray-900 dark:text-white mb-2">
+              <label className="block font-medium text-slate-900 dark:text-white mb-2">
                 Platform
               </label>
               <button
                 onClick={() => setOpenDropdown(openDropdown === 'platform' ? null : 'platform')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-left flex items-center justify-between hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-left flex items-center justify-between hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
-                <span className="text-gray-700 dark:text-gray-300">
+                <span className="text-slate-700 dark:text-slate-300">
                   {selectedPlatforms.length === 0 
                     ? 'Select platform...' 
                     : `${selectedPlatforms.length} selected`}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${openDropdown === 'platform' ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${openDropdown === 'platform' ? 'rotate-180' : ''}`} />
               </button>
               {openDropdown === 'platform' && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg">
                   {['google', 'yelp', 'facebook'].map(platform => (
                     <label
                       key={platform}
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer"
                     >
                       <input
                         type="checkbox"
                         checked={selectedPlatforms.includes(platform)}
                         onChange={() => toggleFilter(selectedPlatforms, platform, setSelectedPlatforms)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">{platform}</span>
+                      <span className="text-sm text-slate-700 dark:text-slate-300 capitalize">{platform}</span>
                     </label>
                   ))}
                 </div>
@@ -213,34 +213,34 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
 
             {/* Star Rating Filter */}
             <div className="relative">
-              <label className="block font-medium text-gray-900 dark:text-white mb-2">
+              <label className="block font-medium text-slate-900 dark:text-white mb-2">
                 Star Rating
               </label>
               <button
                 onClick={() => setOpenDropdown(openDropdown === 'stars' ? null : 'stars')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-left flex items-center justify-between hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-left flex items-center justify-between hover:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
-                <span className="text-gray-700 dark:text-gray-300">
+                <span className="text-slate-700 dark:text-slate-300">
                   {selectedStars.length === 0 
                     ? 'Select rating...' 
                     : `${selectedStars.length} selected`}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${openDropdown === 'stars' ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${openDropdown === 'stars' ? 'rotate-180' : ''}`} />
               </button>
               {openDropdown === 'stars' && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg">
                   {[5, 4, 3, 2, 1].map(stars => (
                     <label
                       key={stars}
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer"
                     >
                       <input
                         type="checkbox"
                         checked={selectedStars.includes(stars)}
                         onChange={() => toggleFilter(selectedStars, stars, setSelectedStars)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                      <span className="text-sm text-slate-700 dark:text-slate-300 flex items-center gap-1">
                         {stars} <span className="text-yellow-400">★</span>
                       </span>
                     </label>
@@ -251,15 +251,15 @@ export function ReviewFeed({ businessId }: ReviewFeedProps) {
           </div>
 
           {/* Show Replied Reviews Checkbox */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={showReplied}
                 onChange={(e) => setShowReplied(e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
               />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-sm text-slate-700 dark:text-slate-300">
                 Show replied reviews
               </span>
             </label>
