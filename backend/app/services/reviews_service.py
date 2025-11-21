@@ -3,7 +3,8 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 from ..google_client import get_google_client
-from ..schemas import ReviewBase
+from ..convex_client import get_convex_client
+from ..schemas import ReviewBase, ReviewAnalysis
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +14,7 @@ class ReviewsService:
     
     def __init__(self):
         self.google_client = get_google_client()
+        self.convex_client = get_convex_client()
     
     async def pull_google_reviews(self, since_iso: Optional[str] = None) -> List[ReviewBase]:
         """
@@ -237,3 +239,71 @@ class ReviewsService:
                 filtered_reviews.append(review)
         
         return filtered_reviews
+    
+    async def store_reviews_in_convex(
+        self, 
+        business_id: str, 
+        reviews: List[ReviewBase], 
+        analyses: List[ReviewAnalysis]
+    ) -> int:
+        """
+        Store reviews and their analyses in Convex database
+        
+        Args:
+            business_id: The business identifier
+            reviews: List of reviews to store
+            analyses: List of corresponding analyses
+            
+        Returns:
+            Number of reviews successfully stored
+        """
+        stored_count = 0
+        
+        for i, review in enumerate(reviews):
+            try:
+                # Get corresponding analysis (if available)
+                analysis = analyses[i] if i < len(analyses) else None
+                
+                if not analysis:
+                    logger.warning(f"No analysis found for review {review.reviewId}, skipping")
+                    continue
+                
+                # Convert review date to timestamp
+                try:
+                    review_date = datetime.fromisoformat(review.createdAt.replace('Z', '+00:00'))
+                    date_timestamp = int(review_date.timestamp() * 1000)
+                except:
+                    date_timestamp = int(datetime.now().timestamp() * 1000)
+                
+                # Store in Convex
+                review_id = await self.convex_client.store_review(
+                    business_id=business_id,
+                    source=review.source,
+                    author=review.reviewerName,
+                    rating=review.rating,
+                    text=review.text,
+                    date=date_timestamp,
+                    triage={
+                        "sentiment": analysis.sentiment,
+                        "severity": analysis.severity,
+                        "themes": analysis.themes,
+                        "recommendedPublicReply": analysis.suggestedReply,
+                        "autoReplyOK": analysis.autoReplyOk,
+                        "escalationReason": "High severity review requires attention" if analysis.severity == "high" else None,
+                        "suggestedOwnerAction": "Review and respond personally" if analysis.severity == "high" else None,
+                        "suggestedPrivateOutreach": analysis.privateOutreachDraft
+                    },
+                    images=[]
+                )
+                
+                if review_id:
+                    stored_count += 1
+                    logger.info(f"Stored review {review.reviewId} in Convex with ID {review_id}")
+                else:
+                    logger.warning(f"Failed to store review {review.reviewId}")
+                    
+            except Exception as e:
+                logger.error(f"Error storing review {review.reviewId}: {e}")
+                continue
+        
+        return stored_count

@@ -35,6 +35,7 @@ class WeeklyInsights(BaseModel):
 # Request Models
 class PullReviewsRequest(BaseModel):
     """Request to pull reviews from Google"""
+    business_id: str = Field(..., description="Business identifier")
     since_iso: Optional[str] = Field(None, description="ISO timestamp to fetch reviews since")
 
 
@@ -66,7 +67,8 @@ class ReviewInsightsRequest(BaseModel):
 # Response Models
 class PullReviewsResponse(BaseModel):
     """Response from pulling reviews"""
-    reviews: List[ReviewBase] = Field(..., description="List of normalized reviews")
+    message: str = Field(..., description="Status message")
+    count: int = Field(..., description="Number of reviews imported")
 
 
 class AnalyzeReviewsResponse(BaseModel):
