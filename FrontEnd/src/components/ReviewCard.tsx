@@ -12,13 +12,14 @@ export function ReviewCard({ review }: ReviewCardProps) {
   const [replyText, setReplyText] = useState(review.triage.recommendedPublicReply);
   const markReplied = useMutation(api.reviews.markReviewReplied);
 
-  const handleReply = async () => {
+  const handleReply = () => {
     if (replyText.trim()) {
-      await markReplied({
+      void markReplied({
         reviewId: review._id,
         replyText: replyText.trim(),
+      }).then(() => {
+        setShowReplyForm(false);
       });
-      setShowReplyForm(false);
     }
   };
 

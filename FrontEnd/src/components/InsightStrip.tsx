@@ -1,8 +1,13 @@
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import { Id } from '../../convex/_generated/dataModel';
 
-export function InsightStrip() {
-  const insights = useQuery(api.reviews.getWeeklyInsights, {});
+interface InsightStripProps {
+  businessId: Id<"businesses">;
+}
+
+export function InsightStrip({ businessId }: InsightStripProps) {
+  const insights = useQuery(api.reviews.getWeeklyInsights, { businessId });
 
   if (!insights) {
     return null;

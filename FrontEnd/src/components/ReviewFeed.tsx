@@ -1,9 +1,14 @@
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { ReviewCard } from './ReviewCard';
+import { Id } from '../../convex/_generated/dataModel';
 
-export function ReviewFeed() {
-  const reviews = useQuery(api.reviews.getReviews, {});
+interface ReviewFeedProps {
+  businessId: Id<"businesses">;
+}
+
+export function ReviewFeed({ businessId }: ReviewFeedProps) {
+  const reviews = useQuery(api.reviews.getReviews, { businessId });
 
   if (!reviews) {
     return (

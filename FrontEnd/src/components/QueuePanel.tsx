@@ -1,13 +1,15 @@
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { ReviewCard } from './ReviewCard';
+import { Id } from '../../convex/_generated/dataModel';
 
 interface QueuePanelProps {
   queueType: 'auto-reply' | 'escalation';
+  businessId: Id<"businesses">;
 }
 
-export function QueuePanel({ queueType }: QueuePanelProps) {
-  const reviews = useQuery(api.reviews.getReviewsByQueue, { queueType });
+export function QueuePanel({ queueType, businessId }: QueuePanelProps) {
+  const reviews = useQuery(api.reviews.getReviewsByQueue, { queueType, businessId });
 
   if (!reviews) {
     return (

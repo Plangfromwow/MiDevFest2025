@@ -3,14 +3,19 @@ import { ReviewFeed } from './ReviewFeed';
 import { QueuePanel } from './QueuePanel';
 import { InsightStrip } from './InsightStrip';
 import { ThemeToggle } from './ThemeToggle';
+import { Id } from '../../convex/_generated/dataModel';
 
-export function Dashboard() {
+interface DashboardProps {
+  businessId: Id<"businesses">;
+}
+
+export function Dashboard({ businessId }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<'auto-reply' | 'escalation'>('auto-reply');
 
   return (
     <div className="h-full flex flex-col">
       {/* Insights Strip */}
-      <InsightStrip />
+      <InsightStrip businessId={businessId} />
       
       {/* Main Dashboard */}
       <div className="flex-1 flex flex-col lg:flex-row gap-6 p-6">
@@ -22,7 +27,7 @@ export function Dashboard() {
             </h2>
             <ThemeToggle />
           </div>
-          <ReviewFeed />
+          <ReviewFeed businessId={businessId} />
         </div>
 
         {/* Right Side - Action Panels */}
@@ -54,7 +59,7 @@ export function Dashboard() {
 
             {/* Tab Content */}
             <div className="p-4">
-              <QueuePanel queueType={activeTab} />
+              <QueuePanel queueType={activeTab} businessId={businessId} />
             </div>
           </div>
         </div>
