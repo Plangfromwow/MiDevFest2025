@@ -7,7 +7,7 @@ export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navItems = [
-    { path: "/", label: "Reviews", icon: MessageSquare },
+    { path: "/reviews", label: "Reviews", icon: MessageSquare },
     { path: "/auto-reply", label: "Auto-Reply Queue", icon: Zap },
     { path: "/escalations", label: "Escalations", icon: AlertTriangle },
     { path: "/business-info", label: "Business Info", icon: Building2 },

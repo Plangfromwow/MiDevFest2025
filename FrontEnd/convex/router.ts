@@ -177,4 +177,139 @@ http.route({
   }),
 });
 
+// Update business information
+http.route({
+  path: "/update-business",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    
+    try {
+      await ctx.runMutation(api.businesses.updateBusiness, {
+        businessId: body.businessId as Id<"businesses">,
+        name: body.name,
+        description: body.description,
+        industry: body.industry,
+        address: body.address,
+        phone: body.phone,
+        email: body.email,
+        website: body.website,
+        googlePlaceId: body.googlePlaceId,
+        yelpBusinessId: body.yelpBusinessId,
+        facebookPageId: body.facebookPageId,
+      });
+      
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }),
+});
+
+// Get business details
+http.route({
+  path: "/get-business",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    
+    try {
+      const business = await ctx.runQuery(api.businesses.getBusiness, {
+        businessId: body.businessId as Id<"businesses">,
+      });
+      
+      return new Response(JSON.stringify({ success: true, business }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }),
+});
+
+// Get business members
+http.route({
+  path: "/get-business-members",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    
+    try {
+      const members = await ctx.runQuery(api.businesses.getBusinessMembers, {
+        businessId: body.businessId as Id<"businesses">,
+      });
+      
+      return new Response(JSON.stringify({ success: true, members }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }),
+});
+
+// Get weekly insights
+http.route({
+  path: "/get-weekly-insights",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    
+    try {
+      const insights = await ctx.runQuery(api.reviews.getWeeklyInsights, {
+        businessId: body.businessId as Id<"businesses">,
+      });
+      
+      return new Response(JSON.stringify({ success: true, insights }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }),
+});
+
+// Approve all auto-replies for a business
+http.route({
+  path: "/approve-all-auto-replies",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    
+    try {
+      const result = await ctx.runMutation(api.reviews.approveAllAutoReplies, {
+        businessId: body.businessId as Id<"businesses">,
+      });
+      
+      return new Response(JSON.stringify({ success: true, count: result.count }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error: any) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }),
+});
+
 export default http;
