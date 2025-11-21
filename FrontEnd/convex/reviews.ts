@@ -1,0 +1,100 @@
+import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
+import { getAuthUserId } from "@convex-dev/auth/server";
+
+export const getReviews = query({
+  args: { 
+    businessId: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return [];
+    }
+
+    const businessId = args.businessId || "default-business";
+    const limit = args.limit || 50;
+
+    return await ctx.db
+      .query("reviews")
+      .withIndex("by_business", (q) => q.eq("businessId", businessId))
+      .order("desc")
+      .take(limit);
+  },
+});
+
+export const getReviewsByQueue = query({
+  args: { 
+    businessId: v.optional(v.string()),
+    queueType: v.union(v.literal("auto-reply"), v.literal("escalation")),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return [];
+    }
+
+    const businessId = args.businessId || "default-business";
+    const reviews = await ctx.db
+      .query("reviews")
+      .withIndex("by_business", (q) => q.eq("businessId", businessId))
+      .filter((q) => q.eq(q.field("replied"), undefined))
+      .collect();
+
+    if (args.queueType === "auto-reply") {
+      return reviews.filter(r => 
+        r.triage.autoReplyOK && 
+        (r.triage.severity === "low" || r.triage.severity === "medium")
+      );
+    } else {
+      return reviews.filter(r => r.triage.severity === "high");
+    }
+  },
+});
+
+export const markReviewReplied = mutation({
+  args: {
+    reviewId: v.id("reviews"),
+    replyText: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    await ctx.db.patch(args.reviewId, {
+      replied: true,
+      replyText: args.replyText,
+      replyDate: Date.now(),
+    });
+  },
+});
+
+export const getWeeklyInsights = query({
+  args: { businessId: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return null;
+    }
+
+    const businessId = args.businessId || "default-business";
+    const weekStart = getWeekStart(new Date());
+
+    return await ctx.db
+      .query("insights")
+      .withIndex("by_business_week", (q) => 
+        q.eq("businessId", businessId).eq("weekStart", weekStart.getTime())
+      )
+      .first();
+  },
+});
+
+function getWeekStart(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day;
+  return new Date(d.setDate(diff));
+}
