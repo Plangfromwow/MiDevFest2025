@@ -30,6 +30,31 @@ export async function pullGoogleReviews(businessId: string, sinceIso?: string): 
 }
 
 /**
+ * Pull mock reviews for Olympic Food via Python backend
+ * Backend will generate mock reviews, analyze them, and store in Convex
+ * Use this for testing instead of calling actual Google API
+ * Convex will automatically update the UI when new reviews are added
+ */
+export async function pullMockGoogleReviews(businessId: string): Promise<{ message: string; count: number }> {
+  const response = await fetch(`${API_BASE_URL}/google/mock-reviews`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      business_id: businessId,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: 'Failed to pull mock reviews' }));
+    throw new Error(error.detail || 'Failed to pull mock reviews');
+  }
+
+  return response.json();
+}
+
+/**
  * Post a reply to a Google review via Python backend
  */
 export async function postReply(reviewId: string, approvedReply: string): Promise<{ status: string; reviewId: string }> {

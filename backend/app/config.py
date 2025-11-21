@@ -6,7 +6,7 @@ import os
 class Settings(BaseSettings):
     # Convex Configuration
     convex_url: str
-    convex_admin_key: str
+    convex_admin_key: Optional[str] = None
     
     # Google Business Profile Configuration
     google_client_id: str

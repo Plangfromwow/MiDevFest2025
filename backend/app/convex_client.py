@@ -35,7 +35,9 @@ class ConvexHTTPClient:
         Returns:
             Response data
         """
-        url = f"{self.base_url}/{endpoint}"
+        # Convex HTTP routes are at https://your-deployment.convex.site/endpoint
+        url = f"{self.base_url.replace('.cloud', '.site')}/{endpoint}"
+        logger.info(f"Making request to Convex: {url}")
         try:
             response = await self.http_client.post(url, json=data)
             response.raise_for_status()
