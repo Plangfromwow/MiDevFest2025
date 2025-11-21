@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     google_location_id: str
     google_account_id: Optional[str] = None
     
+    # IBM Watson NLU Configuration
+    watson_nlu_api_key: str
+    watson_nlu_url: str
+    
     # watsonx.ai Configuration
     watsonx_api_key: str
     watsonx_project_id: str
